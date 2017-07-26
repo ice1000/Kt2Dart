@@ -20,7 +20,7 @@ data Assoc a = La a
 reserved'' :: Parser b -> Parser b
 reserved'' b = do
   a <- b
-  spaces
+  spacesP
   return a
 --
 
@@ -38,7 +38,7 @@ makeChain p = do
 
 parseOperators :: [Assoc [Parser a]] -> Parser b -> Parser (OpTree a b)
 parseOperators arr rp = foldr fu tm arr
-  where tm = oneTerm rp <|> brackets re
+  where tm = oneTerm rp <|> bracketsP re
         re = foldr fu tm arr
         fu :: Assoc [Parser a] -> Parser (OpTree a b) -> Parser (OpTree a b)
         fu (La a) o = chainl1 o $ foldr1 (<|>) $ makeChain <$> a

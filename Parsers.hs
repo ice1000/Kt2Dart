@@ -96,50 +96,58 @@ option1 p op = do
 chainl p op = (chainl1 p op <|>) . return
 
 op :: String -> a -> Parser a
-op = op1 . string
+op = op1 . stringP
 
 op1 :: Parser a -> b -> Parser b
 op1 s = (s >>) . return
 
-brackets :: Parser b -> Parser b
-brackets m = do
-  reserved "("
+bracketsP :: Parser b -> Parser b
+bracketsP m = do
+  reservedP "("
   n <- m
-  reserved ")"
+  reservedP ")"
   return n
 --
 
 oneOf :: String -> Parser Char
 oneOf = satisfy . flip elem
 
-char = satisfy . (==)
+charP = satisfy . (==)
 
-nat :: Parser Int
-nat = read <$> some digit
+natP :: Parser Int
+natP = read <$> some digitP
 
-digit = satisfy isDigit
+digitP = satisfy isDigit
 
-reserved = token . string
+reservedP = tokenP . stringP
 
-spaces :: Parser String
-spaces = many $ oneOf " \n\r\t"
+spacesP :: Parser String
+spacesP = many $ oneOf " \n\r\t"
 
-string [      ] = return []
-string (c : cs) = do
-  char c
-  string cs
+stringP [      ] = return []
+stringP (c : cs) = do
+  charP c
+  stringP cs
   return $ c : cs
 --
 
-token p = do
+tokenP :: Parser String
+tokenP p = do
   a <- p
-  spaces
+  spacesP
   return a
 --
 
-numberP :: Parser Int
+nameP :: Parser String
+nameP = do
+  n <- some $ oneOf $ '_' : alpha
+  spacesP
+  return n
+--
+
+numberP :: Parser String
 numberP = do
-  s <- string "-" <|> return []
-  cs <- some digit
-  return $ read $ s ++ cs
+  s <- stringP "-" <|> return []
+  cs <- some digitP
+  return $ s ++ cs
 --

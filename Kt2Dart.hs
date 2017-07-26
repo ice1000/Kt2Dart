@@ -1,26 +1,31 @@
 
 module Kt2Dart where
 
+import Control.Applicative
+
 import OperatorP
 import Parsers
 
-kotlinOps = parseOperators
-  [ Na [ string "="
-      , string "+="
-      , string "-="
-      , string "*="
-      , string "/="
-      , string ">="
-      , string "<="
-      , string ">"
-      , string "<"]
-  , La [ string "=="
-      , string "!="]
-  , La [ string "&&"
-      , string "||"]
-  , La [string "+", string "-"]
-  , La [string "*", string "/"]
-  ]
+kotlinOps = parseOperators ops term
+  where
+    ops = [ Na [ stringP "="
+               , stringP "+="
+               , stringP "-="
+               , stringP "*="
+               , stringP "/="
+               , stringP ">="
+               , stringP "<="
+               , stringP ">"
+               , stringP "<"]
+          , La [ stringP "=="
+               , stringP "!="]
+          , La [ stringP "&&"
+               , stringP "||"]
+          , La [stringP "+", stringP "-"]
+          , La [stringP "*", stringP "/"]
+          ]
+    term = numberP <|> nameP
+--
 
 kotlinParse = undefined
 
