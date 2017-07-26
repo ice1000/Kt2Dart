@@ -6,16 +6,14 @@ module OperatorP where
 import Parsers
 import Control.Applicative
 
-data OpTree a b =
-  Op (OpTree a b) a (OpTree a b) 
-  | Term b 
+data OpTree a b = Op (OpTree a b) a (OpTree a b) 
+                | Term b 
   deriving (Show, Eq, Functor)
 --
 
-data Associativity a =
-  L a
-  | R a
-  | NoAssociativity a
+data Assoc a = La a
+             | Ra a
+             | Na a
   deriving (Show, Eq, Functor)
 --
 
@@ -38,12 +36,12 @@ makeChain p = do
   return $ \x y -> Op x a y
 --
 
-parseOperators :: [Associativity [Parser a]] -> Parser b -> Parser (OpTree a b)
+parseOperators :: [Assoc [Parser a]] -> Parser b -> Parser (OpTree a b)
 parseOperators arr rp = foldr fu tm arr
   where tm = oneTerm rp <|> brackets re
         re = foldr fu tm arr
-        fu :: Associativity [Parser a] -> Parser (OpTree a b) -> Parser (OpTree a b)
-        fu (L               a) o = chainl1 o $ foldr1 (<|>) $ makeChain <$> a
-        fu (R               a) o = chainr1 o $ foldr1 (<|>) $ makeChain <$> a
-        fu (NoAssociativity a) o = chainm1 o $ foldr1 (<|>) $ makeChain <$> a
+        fu :: Assoc [Parser a] -> Parser (OpTree a b) -> Parser (OpTree a b)
+        fu (La a) o = chainl1 o $ foldr1 (<|>) $ makeChain <$> a
+        fu (Ra a) o = chainr1 o $ foldr1 (<|>) $ makeChain <$> a
+        fu (Na a) o = option1 o $ foldr1 (<|>) $ makeChain <$> a
 --

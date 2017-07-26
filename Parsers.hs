@@ -83,8 +83,8 @@ chainr1 p op = scan
       <|> return a
 --
 
-chainm1 :: Parser a -> Parser (a -> a -> a) -> Parser a
-chainm1 p op = do
+option1 :: Parser a -> Parser (a -> a -> a) -> Parser a
+option1 p op = do
   a <- p
   (do
       f <- op
