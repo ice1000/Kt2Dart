@@ -19,10 +19,10 @@ nums = ['0' .. '9']
 
 newtype Parser val = Parser { parse :: String -> [(val, String)]  }
 
-parseCode :: Parser a -> String -> a
+parseCode :: Parser a -> String -> Either a String
 parseCode m s = case parse m s of
-  [(res, [])] -> res
-  _           -> error "Hugh?"
+  [(res, [])] -> Left res
+  _           -> Right "Hugh?"
 --
 
 instance Functor Parser where

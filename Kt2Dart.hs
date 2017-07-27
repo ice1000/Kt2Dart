@@ -12,19 +12,16 @@ kotlinJumps = continue' <|> throw' <|> break' <|> return'
           charP '@'
           some $ oneOf alpha
           return ""
-        continue' = do
-          stringP "continue"
+        f s = do
+          stringP s
           label
           spaces0P
-          return "continue"
-        break' = do
-          stringP "break"
-          label
-          spaces0P
-          return "break"
+          return s
+        continue' = f "continue"
+        break' = f "break"
         throw' = do
-          reservedP "throw"
-          spaces0P
+          stringP "throw"
+          spacesP
           e <- kotlinExpr
           return $ "throw " ++ e
         return' = do
@@ -39,7 +36,8 @@ kotlinExpr = allNameP
 
 -- | reference: https://kotlinlang.org/docs/reference/grammar.html
 --   Kotlin operator precedence
-kotlinOps = parseOperators ops kotlinExpr >>= return . flattenTree fa fb
+kotlinOps = parseOperators ops kotlinExpr >>=
+            return . flattenTree fa fb
   where
     fa "===" = "=="
     fa "!==" = "!="
@@ -72,12 +70,12 @@ kotlinOps = parseOperators ops kotlinExpr >>= return . flattenTree fa fb
           ]
 --
 
-kotlinParse = undefined
+kotlin2Dart = undefined
 
 main :: IO ()
 main = do
   all' <- getContents
-  putStr $ case kotlinParse all' of
-    (Just o) -> o
-    Nothing  -> "Syntax error."
+  putStr $ case kotlin2Dart all' of
+    (Left  o) -> o
+    (Right o) -> "Syntax error:\n" ++ o
 --
