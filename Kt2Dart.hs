@@ -6,10 +6,45 @@ import Control.Applicative
 import OperatorP
 import Parsers
 
+kotlinJumps :: Parser String
+kotlinJumps = continue' <|> throw' <|> break' <|> return'
+  where label = option0 "" $ do
+          charP '@'
+          some $ oneOf alpha
+          return ""
+        continue' = do
+          stringP "continue"
+          label
+          spaces0P
+          return "continue"
+        break' = do
+          stringP "break"
+          label
+          spaces0P
+          return "break"
+        throw' = do
+          reservedP "throw"
+          spaces0P
+          e <- kotlinExpr
+          return $ "throw " ++ e
+        return' = do
+          stringP "return"
+          label
+          spacesP
+          e <- kotlinExpr
+          return $ "return " ++ e
+--
+
+kotlinExpr = allNameP
+
 -- | reference: https://kotlinlang.org/docs/reference/grammar.html
 --   Kotlin operator precedence
-kotlinOps = parseOperators ops allNameP
+kotlinOps = parseOperators ops kotlinExpr >>= return . flattenTree fa fb
   where
+    fa "===" = "=="
+    fa "!==" = "!="
+    fa other = other
+    fb       = id
     ops = [ Na $ stringP <$>
             [ "=", "+=", "-=", "*=", "/=", "%=" ]    -- assignment
           , La $ stringP <$>
@@ -26,13 +61,13 @@ kotlinOps = parseOperators ops allNameP
             [ "?:" ]                                 -- elvis
           , La
             [ nameP ]                                -- infix function
-          , La $ stringP <$>
+          , Na $ stringP <$>
             [ ".." ]                                 -- range
           , La $ stringP <$>
             [ "+", "-" ]                             -- additive
           , La $ stringP <$>
             [ "*", "/", "%" ]                        -- multiplicative
-          , La $ stringP <$>
+          , Na $ stringP <$>
             [ ":", "as", "as?" ]                     -- type RHS
           ]
 --

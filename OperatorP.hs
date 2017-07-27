@@ -17,10 +17,14 @@ data Assoc a = La a
   deriving (Show, Eq, Functor)
 --
 
+flattenTree :: (a -> String) -> (b -> String) -> OpTree a b -> String
+flattenTree _  fb (Term   t) = fb t
+flattenTree fa fb (Op x o y) = "(" ++ flattenTree fa fb x ++ fa o ++ flattenTree fa fb y ++ ")"
+
 reserved'' :: Parser b -> Parser b
 reserved'' b = do
   a <- b
-  spacesP
+  spaces0P
   return a
 --
 

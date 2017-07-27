@@ -96,6 +96,12 @@ option1 p op = do
     <|> return a
 --
 
+option0 :: b -> Parser b -> Parser b
+option0 d p = do
+  a <- p <|> return d
+  return a
+--
+
 chainl :: Parser a -> Parser (a -> a -> a) -> a -> Parser a
 chainl p op = (chainl1 p op <|>) . return
 
@@ -129,7 +135,10 @@ reservedP :: String -> Parser String
 reservedP = tokenP . stringP
 
 spacesP :: Parser String
-spacesP = many $ oneOf " \n\r\t"
+spacesP = some $ oneOf " \n\r\t"
+
+spaces0P :: Parser String
+spaces0P = option0 "" spacesP
 
 stringP :: String -> Parser String
 stringP [      ] = return []
@@ -142,22 +151,24 @@ stringP (c : cs) = do
 tokenP :: Parser a -> Parser a
 tokenP p = do
   a <- p
-  spacesP
+  spaces0P
   return a
 --
 
 nameP :: Parser String
 nameP = do
-  n <- some $ oneOf $ '_' : '@' : (alpha ++ nums)
-  spacesP
-  return n
+  h <- oneOf s
+  n <- many $ oneOf $ s ++ "<>" ++ nums
+  spaces0P
+  return $ h : n
+  where s = '_' : alpha
 --
 
 numberP :: Parser String
 numberP = do
   s <- stringP "-" <|> return []
   cs <- some digitP
-  spacesP
+  spaces0P
   return $ s ++ cs
 --
 
