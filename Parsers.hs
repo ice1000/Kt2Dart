@@ -1,4 +1,3 @@
-{-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE FlexibleContexts #-}
 
 module Parsers where
@@ -8,7 +7,11 @@ import Data.List
 import Control.Monad
 import Control.Applicative
 
+alpha :: String
 alpha = ['a'..'z'] ++ ['A'..'Z']
+
+nums :: String
+nums = ['0' .. '9']
 
 -----------------------------------------------------
 --------------- my parser combinator ----------------
@@ -93,6 +96,7 @@ option1 p op = do
     <|> return a
 --
 
+chainl :: Parser a -> Parser (a -> a -> a) -> a -> Parser a
 chainl p op = (chainl1 p op <|>) . return
 
 op :: String -> a -> Parser a
@@ -112,18 +116,22 @@ bracketsP m = do
 oneOf :: String -> Parser Char
 oneOf = satisfy . flip elem
 
+charP :: Char -> Parser Char
 charP = satisfy . (==)
 
 natP :: Parser Int
 natP = read <$> some digitP
 
+digitP :: Parser Char
 digitP = satisfy isDigit
 
+reservedP :: String -> Parser String
 reservedP = tokenP . stringP
 
 spacesP :: Parser String
 spacesP = many $ oneOf " \n\r\t"
 
+stringP :: String -> Parser String
 stringP [      ] = return []
 stringP (c : cs) = do
   charP c
@@ -131,7 +139,7 @@ stringP (c : cs) = do
   return $ c : cs
 --
 
-tokenP :: Parser String
+tokenP :: Parser a -> Parser a
 tokenP p = do
   a <- p
   spacesP
@@ -140,7 +148,7 @@ tokenP p = do
 
 nameP :: Parser String
 nameP = do
-  n <- some $ oneOf $ '_' : alpha
+  n <- some $ oneOf $ '_' : '@' : (alpha ++ nums)
   spacesP
   return n
 --
@@ -149,5 +157,9 @@ numberP :: Parser String
 numberP = do
   s <- stringP "-" <|> return []
   cs <- some digitP
+  spacesP
   return $ s ++ cs
 --
+
+allNameP :: Parser String
+allNameP = nameP <|> numberP

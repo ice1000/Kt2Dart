@@ -6,25 +6,35 @@ import Control.Applicative
 import OperatorP
 import Parsers
 
-kotlinOps = parseOperators ops term
+-- | reference: https://kotlinlang.org/docs/reference/grammar.html
+--   Kotlin operator precedence
+kotlinOps = parseOperators ops allNameP
   where
-    ops = [ Na [ stringP "="
-               , stringP "+="
-               , stringP "-="
-               , stringP "*="
-               , stringP "/="
-               , stringP ">="
-               , stringP "<="
-               , stringP ">"
-               , stringP "<"]
-          , La [ stringP "=="
-               , stringP "!="]
-          , La [ stringP "&&"
-               , stringP "||"]
-          , La [stringP "+", stringP "-"]
-          , La [stringP "*", stringP "/"]
+    ops = [ Na $ stringP <$>
+            [ "=", "+=", "-=", "*=", "/=", "%=" ]    -- assignment
+          , La $ stringP <$>
+            [ "||" ]                                 -- disjunction
+          , La $ stringP <$>
+            [ "&&" ]                                 -- conjunction
+          , La $ stringP <$>
+            [ "===", "!==", "==", "!=" ]             -- equality
+          , Na $ stringP <$>
+            [ ">=", "<=", ">", "<"]                  -- comparison
+          , Na $ stringP <$>
+            [ "!in", "in", "is", "!is" ]             -- named checks
+          , La $ stringP <$>
+            [ "?:" ]                                 -- elvis
+          , La
+            [ nameP ]                                -- infix function
+          , La $ stringP <$>
+            [ ".." ]                                 -- range
+          , La $ stringP <$>
+            [ "+", "-" ]                             -- additive
+          , La $ stringP <$>
+            [ "*", "/", "%" ]                        -- multiplicative
+          , La $ stringP <$>
+            [ ":", "as", "as?" ]                     -- type RHS
           ]
-    term = numberP <|> nameP
 --
 
 kotlinParse = undefined
