@@ -34,7 +34,7 @@ kotlinJumps = continue' <|> throw' <|> break' <|> return'
 
 kotlinStatement :: Parser String
 kotlinStatement = do
-  s <- kotlinJumps <|> kotlinCallExpr <|> kotlinOps
+  s <- kotlinJumps <|> kotlinCallExpr <|> kotlinExpr
   option0 "" $ reservedP ";"
   return $ s ++ ";"
 --
