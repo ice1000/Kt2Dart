@@ -164,6 +164,16 @@ nameP = do
   where s = '_' : alpha
 --
 
+--seperateP :: Parser a ->
+seperateP ns s = do
+  n <- ns
+  return [n] <~> do
+    reservedP s
+    r <- seperateP ns s
+    spaces0P
+    return $ n : s : r
+--
+
 numberP :: Parser String
 numberP = do
   s <- stringP "-" <|> return []

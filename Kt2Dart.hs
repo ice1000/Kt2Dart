@@ -42,9 +42,9 @@ kotlinStatement = do
 kotlinCallExpr = do
   n <- kotlinExpr
   reservedP "("
-  e <- option0 [] kotlinExpr
+  e <- option0 [] $ seperateP kotlinExpr ","
   reservedP ")"
-  return $ n ++ "(" ++ e ++ ")"
+  return $ n ++ "(" ++ (e >>= id) ++ ")"
 --
 
 kotlinExpr = kotlinOps <|> kotlinLambda
@@ -53,19 +53,12 @@ kotlinLambda :: Parser String
 kotlinLambda = do
   reservedP "{"
   pm <- option0 [] $ do
-    p <- namesP
+    p <- seperateP nameP ","
     reservedP "->"
     return p
   stmt <- many kotlinStatement
   reservedP "}"
   return $ "(" ++ (pm >>= id) ++ "){" ++ (stmt >>= id) ++ "}"
-  where namesP = do
-          n <- nameP
-          return [n] <~> do
-            reservedP ","
-            r <- namesP
-            spaces0P
-            return $ n : "," : r
 --
 
 -- | reference: https://kotlinlang.org/docs/reference/grammar.html
