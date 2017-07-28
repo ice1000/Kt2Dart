@@ -19,13 +19,13 @@ data Assoc a = La a
 
 flattenTree :: (String -> String) -> (b -> String) -> OpTree String b -> String
 flattenTree _  fb (Term       t) = fb t
-flattenTree fa fb (Op x ","   y) = flattenTree fa fb x ++ "," ++ flattenTree fa fb y
 flattenTree fa fb (Op x "in"  y) = flattenTree fa fb y ++ ".contains(" ++ flattenTree fa fb x ++ ")"
 flattenTree fa fb (Op x "!in" y) = "!" ++ flattenTree fa fb y ++ ".contains(" ++ flattenTree fa fb x ++ ")"
 flattenTree fa fb (Op x "is"  y) = "(" ++ flattenTree fa fb x ++ " is " ++ flattenTree fa fb y ++ ")"
 flattenTree fa fb (Op x "!is" y) = "!(" ++ flattenTree fa fb x ++ " is " ++ flattenTree fa fb y ++ ")"
 flattenTree fa fb (Op x  o    y) = if head o == '#'
   then flattenTree fa fb x ++ "." ++ fa (tail o) ++ "(" ++ flattenTree fa fb y ++ ")"
+  else if o `elem` [ ".", "?.", "," ] then flattenTree fa fb x ++ fa o ++ flattenTree fa fb y
   else "(" ++ flattenTree fa fb x ++ fa o ++ flattenTree fa fb y ++ ")"
 --
 

@@ -32,23 +32,30 @@ kotlinJumps = continue' <|> throw' <|> break' <|> return'
           return $ "return " ++ e
 --
 
-kotlinCallExpr = do
-  n <- kotlinExpr
-  spaces0P
-  reservedP "("
-  -- expr
-  reservedP ")"
+kotlinStatement :: Parser String
+kotlinStatement = do
+  s <- kotlinJumps <|> kotlinCallExpr <|> kotlinOps
+  return $ s ++ ";"
 --
 
-kotlinExpr = allNameP
+kotlinCallExpr = do
+  n <- kotlinExpr
+  reservedP "("
+  e <- kotlinExpr
+  reservedP ")"
+  return $ n ++ "(" ++ e ++ ")"
+--
+
+kotlinExpr = kotlinOps
 
 -- | reference: https://kotlinlang.org/docs/reference/grammar.html
 --   Kotlin operator precedence
-kotlinOps = parseOperators ops kotlinExpr >>=
+kotlinOps = parseOperators ops allNameP >>=
             return . flattenTree fa fb
   where
     fa "===" = "=="
     fa "!==" = "!="
+    fa "?:"  = "??"
     fa other = other
     fb       = id
     ops = [ La $ stringP <$>
@@ -80,6 +87,8 @@ kotlinOps = parseOperators ops kotlinExpr >>=
             [ "*", "/", "%" ]                        -- multiplicative
           , Na $ stringP <$>
             [ ":", "as", "as?" ]                     -- type RHS
+          , La $ stringP <$>
+            [ ".", "?." ]                            -- member access
           ]
 --
 
