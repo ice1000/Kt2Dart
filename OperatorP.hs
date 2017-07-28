@@ -19,14 +19,15 @@ data Assoc a = La a
 
 flattenTree :: (String -> String) -> (b -> String) -> OpTree String b -> String
 flattenTree _  fb (Term       t) = fb t
-flattenTree fa fb (Op x "in"  y) = flattenTree fa fb y ++ ".contains(" ++ flattenTree fa fb x ++ ")"
-flattenTree fa fb (Op x "!in" y) = "!" ++ flattenTree fa fb y ++ ".contains(" ++ flattenTree fa fb x ++ ")"
-flattenTree fa fb (Op x "is"  y) = "(" ++ flattenTree fa fb x ++ " is " ++ flattenTree fa fb y ++ ")"
-flattenTree fa fb (Op x "!is" y) = "!(" ++ flattenTree fa fb x ++ " is " ++ flattenTree fa fb y ++ ")"
 flattenTree fa fb (Op x o@(h : _) y)
-  |h == '#'   = flattenTree fa fb x ++ "." ++ fa (tail o) ++ "(" ++ flattenTree fa fb y ++ ")"
-  |o `elem` l = flattenTree fa fb x ++ fa o ++ flattenTree fa fb y
-  |otherwise  = "(" ++ flattenTree fa fb x ++ fa o ++ flattenTree fa fb y ++ ")"
+  |h == '#'      = flattenTree fa fb x ++ "." ++ fa (tail o) ++ "(" ++ flattenTree fa fb y ++ ")"
+  |o `elem` l    = flattenTree fa fb x ++ fa o ++ flattenTree fa fb y
+  |o == "in"     = flattenTree fa fb y ++ ".contains(" ++ flattenTree fa fb x ++ ")"
+  |o == "!in"    = "!" ++ flattenTree fa fb y ++ ".contains(" ++ flattenTree fa fb x ++ ")"
+  |o == "is"     = "(" ++ flattenTree fa fb x ++ " is " ++ flattenTree fa fb y ++ ")"
+  |o == "!is"    = "!(" ++ flattenTree fa fb x ++ " is " ++ flattenTree fa fb y ++ ")"
+  |o == "invoke" = flattenTree fa fb x ++ "(" ++ flattenTree fa fb y ++ ")"
+  |otherwise     = "(" ++ flattenTree fa fb x ++ fa o ++ flattenTree fa fb y ++ ")"
   where l = [ ".", "?.", "!!." ]
 --
 

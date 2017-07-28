@@ -42,10 +42,15 @@ kotlinStatement = do
 
 kotlinCallExpr = do
   n <- kotlinExpr
-  reservedP "("
-  e <- option0 [] $ seperateP kotlinExpr ","
-  reservedP ")"
-  return $ n ++ "(" ++ join e ++ ")"
+  e <- return [] <~> do
+    reservedP "("
+    e <- option0 [] $ seperateP kotlinExpr ","
+    reservedP ")"
+    return $ join e
+  l <- option0 "" kotlinLambda
+  return $ n ++ "(" ++ f e l ++ ")"
+  where f a@(_ : _) b@(_ : _) = a ++ "," ++ b
+        f a         b         = a ++ b
 --
 
 kotlinExpr = kotlinOps <|> kotlinLambda
