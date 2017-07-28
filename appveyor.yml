@@ -1,0 +1,14 @@
+build_script:
+  - ghc Main.hs
+#
+
+before_build:
+  - choco install ghc
+  - refreshenv
+  - ghci --version
+#
+
+artifacts:
+  - path: Main.exe
+    name: Main
+#
