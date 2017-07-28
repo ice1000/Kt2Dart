@@ -103,12 +103,4 @@ kotlinOps = parseOperators ops allNameP >>=
           ]
 --
 
-kotlin2Dart = undefined
-
-main :: IO ()
-main = do
-  all' <- getContents
-  putStr $ case kotlin2Dart all' of
-    (Left  o) -> o
-    (Right o) -> "Syntax error:\n" ++ o
---
+kotlin2Dart = parseCode kotlinStatement

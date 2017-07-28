@@ -3,7 +3,10 @@ git status
 echo ""
 read -p "Enter commit message:"
 
+ghc Main.hs
 rm *~
+rm *.hi
+rm *.o
 
 git add *
 git stage *
