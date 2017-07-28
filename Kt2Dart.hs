@@ -2,6 +2,7 @@
 module Kt2Dart where
 
 import Control.Applicative
+import Control.Monad
 
 import OperatorP
 import Parsers
@@ -44,7 +45,7 @@ kotlinCallExpr = do
   reservedP "("
   e <- option0 [] $ seperateP kotlinExpr ","
   reservedP ")"
-  return $ n ++ "(" ++ (e >>= id) ++ ")"
+  return $ n ++ "(" ++ join e ++ ")"
 --
 
 kotlinExpr = kotlinOps <|> kotlinLambda
@@ -58,17 +59,17 @@ kotlinLambda = do
     return p
   stmt <- many kotlinStatement
   reservedP "}"
-  return $ "(" ++ (pm >>= id) ++ "){" ++ (stmt >>= id) ++ "}"
+  return $ "(" ++ join pm ++ "){" ++ join stmt ++ "}"
 --
 
 -- | reference: https://kotlinlang.org/docs/reference/grammar.html
 --   Kotlin operator precedence
-kotlinOps = parseOperators ops allNameP >>=
-            return . flattenTree fa fb
+kotlinOps = flattenTree fa fb `liftM` parseOperators ops allNameP
   where
     fa "===" = "=="
     fa "!==" = "!="
     fa "?:"  = "??"
+    fa "!!." = "."
     fa other = other
     fb       = id
     ops = [ Na $ stringP <$>
@@ -99,7 +100,7 @@ kotlinOps = parseOperators ops allNameP >>=
           , Na $ stringP <$>
             [ ":", "as", "as?" ]                     -- type RHS
           , La $ stringP <$>
-            [ ".", "?." ]                            -- member access
+            [ ".", "?.", "!!." ]                     -- member access
           ]
 --
 

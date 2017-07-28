@@ -97,9 +97,7 @@ option1 p op = do
 --
 
 option0 :: b -> Parser b -> Parser b
-option0 d p = do
-  a <- p <|> return d
-  return a
+option0 d p = p <|> return d
 --
 
 chainl :: Parser a -> Parser (a -> a -> a) -> a -> Parser a

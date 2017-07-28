@@ -23,10 +23,11 @@ flattenTree fa fb (Op x "in"  y) = flattenTree fa fb y ++ ".contains(" ++ flatte
 flattenTree fa fb (Op x "!in" y) = "!" ++ flattenTree fa fb y ++ ".contains(" ++ flattenTree fa fb x ++ ")"
 flattenTree fa fb (Op x "is"  y) = "(" ++ flattenTree fa fb x ++ " is " ++ flattenTree fa fb y ++ ")"
 flattenTree fa fb (Op x "!is" y) = "!(" ++ flattenTree fa fb x ++ " is " ++ flattenTree fa fb y ++ ")"
-flattenTree fa fb (Op x  o    y) = if head o == '#'
-  then flattenTree fa fb x ++ "." ++ fa (tail o) ++ "(" ++ flattenTree fa fb y ++ ")"
-  else if o `elem` [ ".", "?.", "," ] then flattenTree fa fb x ++ fa o ++ flattenTree fa fb y
-  else "(" ++ flattenTree fa fb x ++ fa o ++ flattenTree fa fb y ++ ")"
+flattenTree fa fb (Op x o@(h : _) y)
+  |h == '#'   = flattenTree fa fb x ++ "." ++ fa (tail o) ++ "(" ++ flattenTree fa fb y ++ ")"
+  |o `elem` l = flattenTree fa fb x ++ fa o ++ flattenTree fa fb y
+  |otherwise  = "(" ++ flattenTree fa fb x ++ fa o ++ flattenTree fa fb y ++ ")"
+  where l = [ ".", "?.", "!!." ]
 --
 
 reserved'' :: Parser b -> Parser b
