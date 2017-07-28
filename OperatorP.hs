@@ -28,7 +28,7 @@ flattenTree fa fb (Op x o@(h : _) y)
   |o == "!is"    = "!(" ++ flattenTree fa fb x ++ " is " ++ flattenTree fa fb y ++ ")"
   |o == "invoke" = flattenTree fa fb x ++ "(" ++ flattenTree fa fb y ++ ")"
   |otherwise     = "(" ++ flattenTree fa fb x ++ fa o ++ flattenTree fa fb y ++ ")"
-  where l = [ ".", "?.", "!!." ]
+  where l = [ ".", "?.", "!!.", ":" ]
 --
 
 reserved'' :: Parser b -> Parser b

@@ -18,6 +18,7 @@ kotlinJumps = continue' <|> throw' <|> break' <|> return'
           label
           spaces0P
           return s
+
         continue' = f "continue"
         break' = f "break"
         throw' = do
@@ -33,26 +34,40 @@ kotlinJumps = continue' <|> throw' <|> break' <|> return'
           return $ "return " ++ e
 --
 
+kotlinVarVal :: Parser String
+kotlinVarVal = do
+  reservedP "val" <|> reservedP "var"
+  n <- allNameP
+  v <- return "var" <~> do
+    reservedP ":"
+    allNameP
+  return $ v ++ n
+--
+
 kotlinStatement :: Parser String
 kotlinStatement = do
-  s <- kotlinJumps <|> kotlinCallExpr <|> kotlinExpr
+  s <- kotlinJumps <|> kotlinCallExpr <|> kotlinExpr <|> kotlinUnary
   option0 "" $ reservedP ";"
   return $ s ++ ";"
 --
 
+kotlinCallExpr :: Parser String
 kotlinCallExpr = do
   n <- kotlinExpr
-  e <- return [] <~> do
+  e <- return "#" <~> do
     reservedP "("
     e <- option0 [] $ seperateP kotlinExpr ","
     reservedP ")"
     return $ join e
   l <- option0 "" kotlinLambda
-  return $ n ++ "(" ++ f e l ++ ")"
-  where f a@(_ : _) b@(_ : _) = a ++ "," ++ b
-        f a         b         = a ++ b
+  return $ n ++ f e l
+  where f "#"         [     ] = []
+        f "#"       b         = "(" ++ b ++ ")"
+        f a@(_ : _) b@(_ : _) = "(" ++ a ++ "," ++ b ++ ")"
+        f a         b         = "(" ++ a ++ b ++ ")"
 --
 
+kotlinExpr :: Parser String
 kotlinExpr = kotlinOps <|> kotlinLambda
 
 kotlinLambda :: Parser String
@@ -67,16 +82,34 @@ kotlinLambda = do
   return $ "(" ++ join pm ++ "){" ++ join stmt ++ "}"
 --
 
+kotlinUnary :: Parser String
+kotlinUnary = do
+  op <- reservedP "++" <|> reservedP "--" <|> reservedP "!"
+  e <- kotlinExpr
+  return $ op ++ e
+--
+
+kotlinIncDec :: Parser String
+kotlinIncDec = do
+  e <- allNameP
+  return e <~> do
+    op <- reservedP "++" <|> reservedP "--" <|> reservedP "()"
+    return $ e ++ op
+--
+
 -- | reference: https://kotlinlang.org/docs/reference/grammar.html
 --   Kotlin operator precedence
-kotlinOps = flattenTree fa fb `liftM` parseOperators ops allNameP
+kotlinOps :: Parser String
+kotlinOps = flattenTree fa fb `liftM` parseOperators ops kotlinIncDec
   where
     fa "===" = "=="
     fa "!==" = "!="
     fa "?:"  = "??"
     fa "!!." = "."
+    fa "::"  = "."
     fa other = other
     fb       = id
+
     ops = [ Na $ stringP <$>
             [ "=", "+=", "-=", "*=", "/=", "%=" ]    -- assignment
           , La $ stringP <$>
@@ -105,7 +138,7 @@ kotlinOps = flattenTree fa fb `liftM` parseOperators ops allNameP
           , Na $ stringP <$>
             [ ":", "as", "as?" ]                     -- type RHS
           , La $ stringP <$>
-            [ ".", "?.", "!!." ]                     -- member access
+            [ ".", "?.", "!!.", "::" ]               -- member access
           ]
 --
 
