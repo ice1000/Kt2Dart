@@ -32,6 +32,14 @@ kotlinJumps = continue' <|> throw' <|> break' <|> return'
           return $ "return " ++ e
 --
 
+kotlinCallExpr = do
+  n <- kotlinExpr
+  spaces0P
+  reservedP "("
+  -- expr
+  reservedP ")"
+--
+
 kotlinExpr = allNameP
 
 -- | reference: https://kotlinlang.org/docs/reference/grammar.html
@@ -43,7 +51,9 @@ kotlinOps = parseOperators ops kotlinExpr >>=
     fa "!==" = "!="
     fa other = other
     fb       = id
-    ops = [ Na $ stringP <$>
+    ops = [ La $ stringP <$>
+            [ "," ]                                  -- special
+          , Na $ stringP <$>
             [ "=", "+=", "-=", "*=", "/=", "%=" ]    -- assignment
           , La $ stringP <$>
             [ "||" ]                                 -- disjunction
@@ -58,7 +68,10 @@ kotlinOps = parseOperators ops kotlinExpr >>=
           , La $ stringP <$>
             [ "?:" ]                                 -- elvis
           , La
-            [ nameP ]                                -- infix function
+            [ do
+                n <- nameP
+                return $ if n == "in" || n == "is"
+                  then n else '#' : n ]              -- infix function
           , Na $ stringP <$>
             [ ".." ]                                 -- range
           , La $ stringP <$>
