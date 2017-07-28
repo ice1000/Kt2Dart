@@ -35,18 +35,38 @@ kotlinJumps = continue' <|> throw' <|> break' <|> return'
 kotlinStatement :: Parser String
 kotlinStatement = do
   s <- kotlinJumps <|> kotlinCallExpr <|> kotlinOps
+  option0 "" $ reservedP ";"
   return $ s ++ ";"
 --
 
 kotlinCallExpr = do
   n <- kotlinExpr
   reservedP "("
-  e <- kotlinExpr
+  e <- option0 [] kotlinExpr
   reservedP ")"
   return $ n ++ "(" ++ e ++ ")"
 --
 
-kotlinExpr = kotlinOps
+kotlinExpr = kotlinOps <|> kotlinLambda
+
+kotlinLambda :: Parser String
+kotlinLambda = do
+  reservedP "{"
+  pm <- option0 [] $ do
+    p <- namesP
+    reservedP "->"
+    return p
+  stmt <- many kotlinStatement
+  reservedP "}"
+  return $ "(" ++ (pm >>= id) ++ "){" ++ (stmt >>= id) ++ "}"
+  where namesP = do
+          n <- nameP
+          return [n] <~> do
+            reservedP ","
+            r <- namesP
+            spaces0P
+            return $ n : "," : r
+--
 
 -- | reference: https://kotlinlang.org/docs/reference/grammar.html
 --   Kotlin operator precedence
@@ -58,9 +78,7 @@ kotlinOps = parseOperators ops allNameP >>=
     fa "?:"  = "??"
     fa other = other
     fb       = id
-    ops = [ La $ stringP <$>
-            [ "," ]                                  -- special
-          , Na $ stringP <$>
+    ops = [ Na $ stringP <$>
             [ "=", "+=", "-=", "*=", "/=", "%=" ]    -- assignment
           , La $ stringP <$>
             [ "||" ]                                 -- disjunction

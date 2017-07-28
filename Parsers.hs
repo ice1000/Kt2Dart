@@ -52,6 +52,9 @@ instance Alternative Parser where
     rs -> rs
 --
 
+(<~>) :: Alternative a => a b -> a b -> a b
+(<~>) = flip (<|>)
+
 item :: Parser Char
 item = Parser $ \s -> case s of
   [     ] -> [      ]
@@ -66,11 +69,10 @@ chainl1 p op = do
   a <- p
   rest a
   where
-    rest a = (do
+    rest a = return a <~> do
       f <- op
       b <- p
-      rest $ f a b)
-      <|> return a
+      rest $ f a b
 --
 
 chainr1 :: Parser a -> Parser (a -> a -> a) -> Parser a
@@ -79,21 +81,19 @@ chainr1 p op = scan
     scan = do
       a <- p
       rest a
-    rest a = (do
+    rest a = return a <~> do
       f <- op
       b <- scan
-      rest $ f a b)
-      <|> return a
+      rest $ f a b
 --
 
 option1 :: Parser a -> Parser (a -> a -> a) -> Parser a
 option1 p op = do
   a <- p
-  (do
+  return a <~> do
       f <- op
       b <- p
-      return $ f a b)
-    <|> return a
+      return $ f a b
 --
 
 option0 :: b -> Parser b -> Parser b
