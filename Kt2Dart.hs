@@ -41,12 +41,16 @@ kotlinVarVal = do
   v <- return "var" <~> do
     reservedP ":"
     allNameP
-  return $ v ++ n
+  i <- return [] <~> do
+    reservedP "="
+    e <- kotlinCallExpr <|> kotlinExpr
+    return $ '=' : e
+  return $ v ++ " " ++ n ++ i
 --
 
 kotlinStatement :: Parser String
 kotlinStatement = do
-  s <- kotlinJumps <|> kotlinCallExpr <|> kotlinExpr <|> kotlinUnary
+  s <- kotlinJumps <|> kotlinVarVal <|> kotlinCallExpr <|> kotlinExpr <|> kotlinUnary
   option0 "" $ reservedP ";"
   return $ s ++ ";"
 --
@@ -60,11 +64,14 @@ kotlinCallExpr = do
     reservedP ")"
     return $ join e
   l <- option0 "" kotlinLambda
-  return $ n ++ f e l
-  where f "#"         [     ] = []
-        f "#"       b         = "(" ++ b ++ ")"
-        f a@(_ : _) b@(_ : _) = "(" ++ a ++ "," ++ b ++ ")"
-        f a         b         = "(" ++ a ++ b ++ ")"
+  return $ g n ++ f e l
+  where f "#"         [     ]  = []
+        f "#"       b          = "(" ++ b ++ ")"
+        f a@(_ : _) b@(_ : _)  = "(" ++ a ++ "," ++ b ++ ")"
+        f a         b          = "(" ++ a ++ b ++ ")"
+        g s@(h : _) |elem h l  = "new " ++ s
+                    |otherwise = s
+          where l = ['A' .. 'Z']
 --
 
 kotlinExpr :: Parser String
@@ -93,7 +100,7 @@ kotlinIncDec :: Parser String
 kotlinIncDec = do
   e <- allNameP
   return e <~> do
-    op <- reservedP "++" <|> reservedP "--" <|> reservedP "()"
+    op <- reservedP "++" <|> reservedP "--"
     return $ e ++ op
 --
 
