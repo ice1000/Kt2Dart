@@ -8,7 +8,10 @@ import OperatorP
 import Parsers
 
 kotlinJumps :: Parser String
-kotlinJumps = continue' <|> throw' <|> break' <|> return'
+kotlinJumps = continue'
+  <|> throw'
+  <|> break'
+  <|> return'
   where label = option0 "" $ do
           charP '@'
           some $ oneOf alpha
@@ -50,7 +53,11 @@ kotlinVarVal = do
 
 kotlinStatement :: Parser String
 kotlinStatement = do
-  s <- kotlinJumps <|> kotlinVarVal <|> kotlinCallExpr <|> kotlinExpr <|> kotlinUnary
+  s <- kotlinJumps
+    <|> kotlinVarVal
+    <|> kotlinCallExpr
+    <|> kotlinExpr
+    <|> kotlinUnary
   option0 "" $ reservedP ";"
   return $ s ++ ";"
 --
@@ -91,7 +98,9 @@ kotlinLambda = do
 
 kotlinUnary :: Parser String
 kotlinUnary = do
-  op <- reservedP "++" <|> reservedP "--" <|> reservedP "!"
+  op <- reservedP "++"
+    <|> reservedP "--"
+    <|> reservedP "!"
   e <- kotlinExpr
   return $ op ++ e
 --

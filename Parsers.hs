@@ -64,6 +64,9 @@ item = Parser $ \s -> case s of
 satisfy :: (Char -> Bool) -> Parser Char
 satisfy p = item >>= \c -> if p c then return c else empty
 
+disatisfy :: (Char -> Bool) -> Parser Char
+disatisfy p = satisfy $ not . p
+
 chainl1 :: Parser a -> Parser (a -> a -> a) -> Parser a
 chainl1 p op = do
   a <- p
