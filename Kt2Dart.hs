@@ -149,4 +149,20 @@ kotlinOps = flattenTree fa fb `liftM` parseOperators ops kotlinIncDec
           ]
 --
 
+kotlinClass :: Parser String
+kotlinClass = do
+  m <- many $ reservedP "abstract "
+    <|> reservedP "private "
+    <|> reservedP "data "
+    <|> reservedP "public "
+    <|> reservedP "sealed "
+  reservedP "class"
+  n <- nameP
+  reservedP "{"
+  -- TODO
+  reservedP "}"
+  return $ join [ e | e <- m, e `elem` [ "private ", "abstract " ] ] ++
+    "class " ++ n ++ "{" ++ "" ++ "}"
+--
+
 kotlin2Dart = parseCode kotlinStatement
