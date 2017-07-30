@@ -1,12 +1,17 @@
 git status
 
-echo ""
-read -p "Enter commit message:"
+ghc Main.hs -O2
+gcc -Wall compile.c -o transpiler -O3
 
-ghc Main.hs
 rm *~
 rm *.hi
 rm *.o
+
+rm ./Main
+rm ./transpiler
+
+echo ""
+read -p "Enter commit message:"
 
 git add *
 git stage *
