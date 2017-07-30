@@ -47,7 +47,7 @@ oneTerm rp = do
 makeChain :: Parser a -> Parser (OpTree a b -> OpTree a b -> OpTree a b)
 makeChain p = do
   a <- reserved'' p
-  return $ \x y -> Op x a y
+  return (`Op` a)
 --
 
 parseOperators :: [Assoc [Parser a]] -> Parser b -> Parser (OpTree a b)
