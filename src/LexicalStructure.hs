@@ -87,7 +87,8 @@ regularEscapeSequenceP = do
 semiP :: Parser Char
 semiP = do
   charP ';' <|> charP '\n'
-  return ':'
+  spaces0P
+  return ';'
 --
 
 javaIdentifierP :: Parser String

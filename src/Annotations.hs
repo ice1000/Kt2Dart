@@ -49,7 +49,7 @@ annotationUseSiteTargetP = reservedP "field"
 
 unescapedAnnotationP :: Parser String
 unescapedAnnotationP = do
-  ns <- tokenP simpleNameP /|\ stringP "."
+  ns <- stringP "." \|/ tokenP simpleNameP
   ta <- option0 [] typeArgumentsP
   va <- option0 [] valueArgumentsP
   return $ join ns ++ ta ++ va

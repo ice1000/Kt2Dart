@@ -19,13 +19,13 @@ modifierP = classModifierP
 
 modifiersP :: Parser String
 modifiersP = do
-  ls <- modifierP <|> annotationsP /|\ spaces0P
+  ls <- spaces0P \|/ modifierP <|> annotationsP
   return $ join ls
 --
 
 typeModifiersP :: Parser String
 typeModifiersP = do
-  ls <- suspendModifierP <|> annotationsP /|\ spaces0P
+  ls <- spaces0P \|/ suspendModifierP <|> annotationsP
   return $ join ls
 --
 

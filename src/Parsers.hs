@@ -174,10 +174,10 @@ seperateP ns ss = do
     return $ n : s : r
 --
 
-(/|\) = seperateP
+(\|/) = flip seperateP
 (=>>) = convertReservedP
 
 digitP :: Parser Char
 digitP = satisfy isDigit
 
-infixl 3 /|\
+infixl 2 \|/
