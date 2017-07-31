@@ -6,6 +6,8 @@ cd ./src/
 ghc Main.hs -O2
 rm *~
 rm *.hi
+rm *.hi-boot
+rm *.o-boot
 rm *.o
 mv ./Main ./../Main
 cd ./../
