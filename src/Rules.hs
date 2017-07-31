@@ -18,7 +18,7 @@ statementsP = do
   many semiP
   s <- some semiP \|/ statementP
   many semiP
-  return $ join s
+  return $ join s ++ ";"
 --
 
 statementP :: Parser String
@@ -38,7 +38,7 @@ blockP = do
   reservedP "{"
   s <- statementsP
   reservedP "}"
-  return s
+  return $ '{' : s ++ "}"
 --
 
 valueArgumentsP :: Parser String

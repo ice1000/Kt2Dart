@@ -12,3 +12,4 @@ userTypeP :: Parser String
 optionalProjectionP :: Parser String
 simpleUserTypeP :: Parser String
 typeConstraintsP :: Parser String
+typeConstraintP :: Parser String

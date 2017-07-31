@@ -25,7 +25,13 @@ functionP = do
     return $ t ++ " "
   tc <- typeConstraintsP
   fb <- option0 [] functionBodyP
-  return $ rt ++ sn ++ tp ++ vp
+  return $ rt ++ sn ++ tp ++ vp ++ fb
 --
 
-functionBodyP = reservedP ""
+functionBodyP :: Parser String
+functionBodyP = blockP <~> do
+  reservedP "="
+  e <- expressionP
+  return $ "=>" ++ e
+--
+

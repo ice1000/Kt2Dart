@@ -106,4 +106,17 @@ functionTypeP = do
   return "Function" -- "(" ++ join b ++ ")" ++ c
 --
 
-typeConstraintsP = reservedP ""
+typeConstraintsP :: Parser String
+typeConstraintsP = option0 [] $ do
+  reservedP "where"
+  ls <- reservedP "," \|/ typeConstraintP
+  return $ join ls
+--
+
+typeConstraintP :: Parser String
+typeConstraintP = do
+  m <- modifiersP
+  n <- simpleNameP
+  u <- option0 [] userTypeP
+  return $ m ++ n ++ u
+--
