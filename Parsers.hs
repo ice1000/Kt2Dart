@@ -7,22 +7,16 @@ import Data.List
 import Control.Monad
 import Control.Applicative
 
-alpha :: String
-alpha = ['a'..'z'] ++ ['A'..'Z']
-
-nums :: String
-nums = ['0' .. '9']
-
 -----------------------------------------------------
 --------------- my parser combinator ----------------
 -----------------------------------------------------
 
 newtype Parser val = Parser { parse :: String -> [(val, String)]  }
 
-parseCode :: Parser a -> String -> Either a String
+parseCode :: Parser a -> String -> Either String a
 parseCode m s = case parse m s of
-  [(res, [])] -> Left res
-  _           -> Right "Hugh?"
+  [(res, [])] -> Right res
+  _           -> Left "Hugh?"
 --
 
 instance Functor Parser where
@@ -101,16 +95,15 @@ option1 p op = do
 
 option0 :: b -> Parser b -> Parser b
 option0 d p = p <|> return d
---
 
 chainl :: Parser a -> Parser (a -> a -> a) -> a -> Parser a
 chainl p op = (chainl1 p op <|>) . return
 
-op :: String -> a -> Parser a
-op = op1 . stringP
+convertStringP :: String -> a -> Parser a
+convertStringP = convertParserP . stringP
 
-op1 :: Parser a -> b -> Parser b
-op1 s = (s >>) . return
+convertParserP :: Parser a -> b -> Parser b
+convertParserP s = (s >>) . return
 
 bracketsP :: Parser b -> Parser b
 bracketsP m = do
@@ -123,20 +116,35 @@ bracketsP m = do
 oneOf :: String -> Parser Char
 oneOf = satisfy . flip elem
 
+noneOf :: String -> Parser Char
+noneOf = disatisfy . flip elem
+
 charP :: Char -> Parser Char
 charP = satisfy . (==)
 
-natP :: Parser Int
-natP = read <$> some digitP
+oneCharP :: Parser Char
+oneCharP = satisfy $ const True
 
-digitP :: Parser Char
-digitP = satisfy isDigit
+oneCharPS :: Parser String
+oneCharPS = do
+  c <- oneCharP
+  return [c]
+--
+
+exceptCharP :: Char -> Parser Char
+exceptCharP = disatisfy . (==)
 
 reservedP :: String -> Parser String
 reservedP = tokenP . stringP
 
+convertReservedP :: String -> String -> Parser String
+convertReservedP a = tokenP . convertStringP a
+
 spacesP :: Parser String
-spacesP = some $ oneOf " \n\r\t"
+spacesP = do
+  some $ oneOf " \r\t"
+  return " "
+--
 
 spaces0P :: Parser String
 spaces0P = option0 "" spacesP
@@ -149,39 +157,27 @@ stringP (c : cs) = do
   return $ c : cs
 --
 
-tokenP :: Parser a -> Parser a
+tokenP :: Parser String -> Parser String
 tokenP p = do
   a <- p
-  spaces0P
-  return a
+  s <- spacesP
+  return $ a ++ s
 --
 
-nameP :: Parser String
-nameP = do
-  h <- oneOf s
-  n <- many $ oneOf $ s ++ "<>" ++ nums
-  spaces0P
-  return $ h : n
-  where s = '_' : alpha
---
-
---seperateP :: Parser a ->
-seperateP ns s = do
+seperateP :: Parser String -> Parser String -> Parser [String]
+seperateP ns ss = do
   n <- ns
   return [n] <~> do
-    reservedP s
-    r <- seperateP ns s
+    s <- ss
+    r <- seperateP ns ss
     spaces0P
     return $ n : s : r
 --
 
-numberP :: Parser String
-numberP = do
-  s <- stringP "-" <|> return []
-  cs <- some digitP
-  spaces0P
-  return $ s ++ cs
---
+(/|\) = seperateP
+(=>>) = convertReservedP
 
-allNameP :: Parser String
-allNameP = nameP <|> numberP
+digitP :: Parser Char
+digitP = satisfy isDigit
+
+infixl 3 /|\
