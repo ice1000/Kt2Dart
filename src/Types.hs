@@ -100,8 +100,10 @@ simpleUserTypeP = do
 --   The `simple name` is `paramter` in the doc
 functionTypeP :: Parser String
 functionTypeP = do
-  b <- bracketsP $ reservedP [] <~> reservedP "," \|/ simpleNameP
+  b <- bracketsP $ option0 [] $ reservedP "," \|/ simpleNameP
   reservedP "->"
   c <- typeP
   return "Function" -- "(" ++ join b ++ ")" ++ c
 --
+
+typeConstraintsP = reservedP ""

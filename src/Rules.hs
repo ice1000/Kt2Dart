@@ -3,9 +3,12 @@ module Rules where
 import Control.Applicative
 import Control.Monad
 
+import Data.List.Split
+
 import Parsers
 import LexicalStructure
 import {-# SOURCE #-} Types
+import {-# SOURCE #-} Modifiers
 
 expressionP :: Parser String
 expressionP = reservedP "expr"
@@ -51,3 +54,24 @@ valueArgumentsP = do
     return $ n ++ s ++ e
   return $ '(' : join i ++ ")"
 --
+
+valueParametersP :: Parser String
+valueParametersP = do
+  ls <- bracketsP $ option0 [] $ reservedP "," \|/ functionParameterP
+  return $ '(' : join ls ++ ")"
+--
+
+-- | consider do something to the sencond
+--   statement of the do notation
+functionParameterP :: Parser String
+functionParameterP = do
+  m <- option0 [] modifiersP
+  reservedP [] <~> reservedP "var" <|> "val" =>> "var"
+  p <- parameterP
+  e <- reservedP [] <~> do
+    reservedP "="
+    e <- expressionP
+    return $ '=' : e
+  return $ m ++ p ++ e
+--
+
