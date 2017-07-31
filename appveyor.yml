@@ -1,6 +1,9 @@
 build_script:
+  - "C:\\mingw-w64\\x86_64-6.3.0-posix-seh-rt_v5-rev1\\mingw64\\bin\\gcc.exe compile.c -o transpiler.exe -O3"
+  - cd src
   - ghc Main.hs -O2
-  - "C:\\mingw-w64\\x86_64-6.3.0-posix-seh-rt_v5-rev1\\mingw64\\bin\\gcc.exe compiler.c -o transpiler.exe -O3"
+  - move Main.exe ../Main.exe
+  - cd ..
 #
 
 before_build:

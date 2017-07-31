@@ -160,7 +160,7 @@ stringP (c : cs) = do
 tokenP :: Parser String -> Parser String
 tokenP p = do
   a <- p
-  s <- spacesP
+  s <- spaces0P
   return $ a ++ s
 --
 

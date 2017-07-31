@@ -4,8 +4,9 @@ import Control.Applicative
 import Control.Monad
 
 import Parsers
-import Types
 import LexicalStructure
+import {-# SOURCE #-} Types
+import {-# SOURCE #-} Rules
 
 annotationsP :: Parser String
 annotationsP = annotationP <|> annotationListP

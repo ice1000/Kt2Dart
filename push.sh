@@ -1,14 +1,18 @@
 git status
 
-ghc Main.hs -O2
 gcc -Wall compile.c -o transpiler -O3
 
+cd ./src/
+ghc Main.hs -O2
 rm *~
 rm *.hi
 rm *.o
+mv ./Main ./../Main
+cd ./../
 
-rm ./Main
-rm ./transpiler
+# rm ./Main
+# rm ./transpiler
+rm *~
 
 echo ""
 read -p "Enter commit message:"
