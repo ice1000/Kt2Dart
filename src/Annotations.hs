@@ -9,14 +9,17 @@ import {-# SOURCE #-} Types
 import {-# SOURCE #-} Rules
 
 annotationsP :: Parser String
-annotationsP = annotationP <|> annotationListP
+annotationsP = do
+  s <- spaces0P \|/ annotationP <|> annotationListP
+  return $ join s
+--
 
 annotationP :: Parser String
 annotationP = do
-  charP '@'
+  reservedP "@"
   s <- option0 [] $ do
     a <- annotationUseSiteTargetP
-    charP ':'
+    reservedP ":"
     return $ a ++ ":"
   u <- unescapedAnnotationP
   return $ '@' : s ++ u
@@ -24,14 +27,14 @@ annotationP = do
 
 annotationListP :: Parser String
 annotationListP = do
-  charP '@'
+  reservedP "@"
   s <- option0 [] $ do
     a <- annotationUseSiteTargetP
-    charP ':'
+    reservedP ":"
     return []
-  charP '['
+  reservedP "["
   u <- some unescapedAnnotationP
-  charP ']'
+  reservedP "]"
   return $ '@' : s ++ join u
 --
 
@@ -49,7 +52,7 @@ annotationUseSiteTargetP = reservedP "field"
 
 unescapedAnnotationP :: Parser String
 unescapedAnnotationP = do
-  ns <- stringP "." \|/ tokenP simpleNameP
+  ns <- reservedP "." \|/ tokenP simpleNameP
   ta <- option0 [] typeArgumentsP
   va <- option0 [] valueArgumentsP
   return $ join ns ++ ta ++ va

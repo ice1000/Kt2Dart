@@ -40,8 +40,7 @@ blockP = do
 
 valueArgumentsP :: Parser String
 valueArgumentsP = do
-  reservedP "("
-  i <- reservedP "," \|/ do
+  i <- bracketsP $ reservedP "," \|/ do
     n <- option0 [] $ do
       n <- simpleNameP
       spaces0P
@@ -50,6 +49,5 @@ valueArgumentsP = do
     s <- option0 [] $ reservedP "*"
     e <- expressionP
     return $ n ++ s ++ e
-  reservedP ")"
   return $ '(' : join i ++ ")"
 --

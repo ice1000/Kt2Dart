@@ -9,7 +9,30 @@ import {-# SOURCE #-} Modifiers
 import {-# SOURCE #-} Rules
 
 typeP :: Parser String
-typeP = reservedP "type"
+typeP = do
+  m <- typeModifiersP
+  r <- typeReferenceP
+  return $ m ++ r
+--
+
+typeReferenceP :: Parser String
+typeReferenceP = do
+  a <- o
+  reservedP "" <~> reservedP "?"
+  return a
+  where o = reservedP "dynamic"
+          <|> functionTypeP
+          <|> userTypeP
+          -- <|> nullableTypeP
+          <|> bracketsP typeReferenceP
+--
+
+-- nullableTypeP :: Parser String
+-- nullableTypeP = do
+--   t <- typeReferenceP
+--   reservedP "?"
+--   return t
+-- --
 
 typeArgumentsP :: Parser String
 typeArgumentsP = do
@@ -62,7 +85,8 @@ optionalProjectionP = varianceAnnotationP
 simpleUserTypeP :: Parser String
 simpleUserTypeP = do
   n <- simpleNameP
-  p <- option0 [] $ do
+  spaces0P
+  p <- reservedP [] <~> do
     reservedP "<"
     ls <- reservedP "," \|/ reservedP "*" <|> do
       o <- option0 [] optionalProjectionP
@@ -70,4 +94,14 @@ simpleUserTypeP = do
     reservedP ">"
     return $ '<' : join ls ++ ">"
   return $ n ++ p
+--
+
+-- | Here's an issue
+--   The `simple name` is `paramter` in the doc
+functionTypeP :: Parser String
+functionTypeP = do
+  b <- bracketsP $ reservedP [] <~> reservedP "," \|/ simpleNameP
+  reservedP "->"
+  c <- typeP
+  return "Function" -- "(" ++ join b ++ ")" ++ c
 --
