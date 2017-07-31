@@ -11,6 +11,7 @@ int main(const int argc, const char *argv[]) {
 		char *command = (char *) malloc(size + 10);
 		memset(command, '\0', size);
 		sprintf(command, "echo \"%s\" | ./Main", buffer);
+		puts(buffer);
 		ret = system(command);
 		free(buffer);
 		free(command);

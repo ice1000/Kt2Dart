@@ -142,7 +142,7 @@ convertReservedP a = tokenP . convertStringP a
 
 spacesP :: Parser String
 spacesP = do
-  some $ oneOf " \r\t"
+  some $ oneOf " \r\t\n"
   return " "
 --
 

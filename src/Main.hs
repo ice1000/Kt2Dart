@@ -8,5 +8,5 @@ main = do
   all' <- getContents
   putStrLn $ case kotlin2Dart all' of
     (Left  o) -> o
-    (Right o) -> "Syntax error:\n" ++ o
+    (Right o) -> "Result:\n\n" ++ o
 --

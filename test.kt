@@ -1,5 +1,4 @@
-run {
-	val luckyNum: int = 7
-	println(1+1, luckyNum)
+fun main(args: Array<String>) {
+stmt;
+stmt;
 }
-
