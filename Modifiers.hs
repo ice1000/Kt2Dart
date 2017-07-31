@@ -6,25 +6,31 @@ import Control.Monad
 import Parsers
 import Annotations
 
-modifier :: Parser String
-modifier = classModifier
-  <|> accessModifier
-  <|> varianceAnnotation
-  <|> memberModifier
-  <|> parameterModifier
-  <|> typeParameterModifier
-  <|> functionModifier
-  <|> propertyModifier
+modifierP :: Parser String
+modifierP = classModifierP
+  <|> accessModifierP
+  <|> varianceAnnotationP
+  <|> memberModifierP
+  <|> parameterModifierP
+  <|> typeParameterModifierP
+  <|> functionModifierP
+  <|> propertyModifierP
 --
 
-modifiers :: Parser [String]
-modifiers = modifier <|> annotations /|\ spaces0P
+modifiersP :: Parser String
+modifiersP = do
+  ls <- modifierP <|> annotationsP /|\ spaces0P
+  return $ join ls
+--
 
-typeModifiers :: Parser [String]
-typeModifiers = suspendModifier <|> annotations /|\ spaces0P
+typeModifiersP :: Parser String
+typeModifiersP = do
+  ls <- suspendModifierP <|> annotationsP /|\ spaces0P
+  return $ join ls
+--
 
-classModifier :: Parser String
-classModifier = reservedP "abstract"
+classModifierP :: Parser String
+classModifierP = reservedP "abstract"
   <|> reservedP "final"
   <|> reservedP "enum"
   <|> "open" =>> []
@@ -33,44 +39,44 @@ classModifier = reservedP "abstract"
   <|> "data" =>> []
 --
 
-memberModifier :: Parser String
-memberModifier = reservedP "final"
+memberModifierP :: Parser String
+memberModifierP = reservedP "final"
   <|> reservedP "abstract"
   <|> "open" =>> []
   <|> "lateinit" =>> []
   <|> "override" =>> "@override"
 --
 
-accessModifier :: Parser String
-accessModifier = reservedP "public"
+accessModifierP :: Parser String
+accessModifierP = reservedP "public"
   <|> reservedP "private"
   <|> reservedP "protected"
   <|> "internal" =>> []
 --
 
-varianceAnnotation :: Parser String
-varianceAnnotation = reservedP "in" <|> reservedP "out"
+varianceAnnotationP :: Parser String
+varianceAnnotationP = reservedP "in" <|> reservedP "out"
 
-parameterModifier :: Parser String
-parameterModifier = flip convertParserP [] $ reservedP "noinline"
+parameterModifierP :: Parser String
+parameterModifierP = flip convertParserP [] $ reservedP "noinline"
   <|> reservedP "crossinline"
   <|> reservedP "vararg"
 --
 
-typeParameterModifier :: Parser String
-typeParameterModifier = reservedP "reified"
+typeParameterModifierP :: Parser String
+typeParameterModifierP = reservedP "reified"
 
-functionModifier :: Parser String
-functionModifier = "tailrec" =>> []
+functionModifierP :: Parser String
+functionModifierP = "tailrec" =>> []
   <|> reservedP "operator"
   <|> "infix" =>> []
   <|> reservedP "inline"
   <|> "external" =>> "/* This is a JNI function */"
-  <|> suspendModifier
+  <|> suspendModifierP
 --
 
-propertyModifier :: Parser String
-propertyModifier = reservedP "const"
+propertyModifierP :: Parser String
+propertyModifierP = reservedP "const"
 
-suspendModifier :: Parser String
-suspendModifier = reservedP "suspend"
+suspendModifierP :: Parser String
+suspendModifierP = reservedP "suspend"
