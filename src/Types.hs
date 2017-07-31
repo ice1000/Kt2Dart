@@ -14,6 +14,7 @@ typeArgumentsP :: Parser String
 typeArgumentsP = do
   charP '<'
   ts <- typeP /|\ stringP ","
-  return ""
+  charP '>'
+  return $ '<' : join ts ++ ">"
 --
 

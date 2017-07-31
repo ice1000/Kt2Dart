@@ -1,4 +1,4 @@
-0;115;0cbuild_script:
+build_script:
   - cd src
   - ghc Main.hs -O2
   - move Main.exe ../Main.exe
