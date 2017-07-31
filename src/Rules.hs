@@ -3,8 +3,6 @@ module Rules where
 import Control.Applicative
 import Control.Monad
 
-import Data.List.Split
-
 import Parsers
 import LexicalStructure
 import {-# SOURCE #-} Types
