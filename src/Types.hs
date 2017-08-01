@@ -82,6 +82,7 @@ userTypeP = do
 optionalProjectionP :: Parser String
 optionalProjectionP = varianceAnnotationP
 
+-- | Maybe transform `*` into something else in dart
 simpleUserTypeP :: Parser String
 simpleUserTypeP = do
   n <- simpleNameP
