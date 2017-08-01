@@ -85,7 +85,6 @@ optionalProjectionP = varianceAnnotationP
 simpleUserTypeP :: Parser String
 simpleUserTypeP = do
   n <- simpleNameP
-  spaces0P
   p <- reservedP [] <~> do
     reservedP "<"
     ls <- reservedP "," \|/ reservedP "*" <|> do

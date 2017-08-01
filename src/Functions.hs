@@ -24,6 +24,7 @@ functionP = do
     t <- typeP
     return $ t ++ " "
   tc <- typeConstraintsP
+--  newLines0P
   fb <- option0 [] functionBodyP
   return $ rt ++ sn ++ tp ++ vp ++ fb
 --

@@ -14,9 +14,9 @@ expressionP = reservedP "expr"
 statementsP :: Parser String
 statementsP = do
   many semiP
-  s <- some semiP \|/ statementP
+  s <- option0 [] $ some semiP \|/ statementP
   many semiP
-  return $ join s ++ ";"
+  return $ join s ++ if s /= [] then ";" else []
 --
 
 statementP :: Parser String
@@ -41,7 +41,7 @@ blockP = do
 
 valueArgumentsP :: Parser String
 valueArgumentsP = do
-  i <- bracketsP $ reservedP "," \|/ do
+  i <- bracketsP $ reservedLP "," \|/ do
     n <- option0 [] $ do
       n <- simpleNameP
       spaces0P

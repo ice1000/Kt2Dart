@@ -5,8 +5,8 @@ import Control.Monad
 
 main :: IO ()
 main = do
-  all' <- getContents
-  putStrLn $ case kotlin2Dart all' of
+  allCodes <- getContents
+  putStrLn $ case kotlin2Dart allCodes of
     (Left  o) -> o
-    (Right o) -> "Result:\n\n" ++ o
+    (Right o) -> o
 --

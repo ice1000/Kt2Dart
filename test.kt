@@ -1,4 +1,4 @@
-fun main(args: Array<String>) {
-stmt;
-stmt;
+fun main(args: Array<String>): Unit {
+stmt
+stmt
 }

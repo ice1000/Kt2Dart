@@ -1,4 +1,5 @@
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE ApplicativeDo #-}
 
 module Parsers where
 
@@ -137,17 +138,32 @@ exceptCharP = disatisfy . (==)
 reservedP :: String -> Parser String
 reservedP = tokenP . stringP
 
+reservedLP :: String -> Parser String
+reservedLP = tokenLP . stringP
+
 convertReservedP :: String -> String -> Parser String
 convertReservedP a = tokenP . convertStringP a
 
+convertReservedLP :: String -> String -> Parser String
+convertReservedLP a = tokenLP . convertStringP a
+
 spacesP :: Parser String
 spacesP = do
-  some $ oneOf " \r\t\n"
+  some $ oneOf " \r\t"
   return " "
 --
 
 spaces0P :: Parser String
-spaces0P = option0 "" spacesP
+spaces0P = option0 [] spacesP
+
+newLinesP :: Parser String
+newLinesP = do
+  some $ oneOf " \t\r\n"
+  return " "
+--
+
+newLines0P :: Parser String
+newLines0P = option0 [] newLinesP
 
 stringP :: String -> Parser String
 stringP [      ] = return []
@@ -164,18 +180,25 @@ tokenP p = do
   return $ a ++ s
 --
 
+tokenLP :: Parser String -> Parser String
+tokenLP p = do
+  a <- p
+  s <- newLines0P
+  return $ a ++ s
+--
+
 seperateP :: Parser String -> Parser String -> Parser [String]
 seperateP ns ss = do
   n <- ns
   return [n] <~> do
     s <- ss
     r <- seperateP ns ss
-    spaces0P
     return $ n : s : r
 --
 
 (\|/) = flip seperateP
 (=>>) = convertReservedP
+(->>) = convertReservedLP
 
 digitP :: Parser Char
 digitP = satisfy isDigit
