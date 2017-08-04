@@ -1,3 +1,5 @@
+{-# LANGUAGE ApplicativeDo #-}
+
 module LexicalStructure where
 
 import Control.Applicative
