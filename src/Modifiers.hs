@@ -9,14 +9,17 @@ import Parsers
 import Annotations
 
 modifierP :: Parser String
-modifierP = classModifierP
-  <|> accessModifierP
-  <|> varianceAnnotationP
-  <|> memberModifierP
-  <|> parameterModifierP
-  <|> typeParameterModifierP
-  <|> functionModifierP
-  <|> propertyModifierP
+modifierP = foldr1 (<|>) $ ms
+  where
+    ms = [ classModifierP
+         , accessModifierP
+         , varianceAnnotationP
+         , memberModifierP
+         , parameterModifierP
+         , typeParameterModifierP
+         , functionModifierP
+         , propertyModifierP
+         ]
 --
 
 modifiersP :: Parser String
@@ -32,21 +35,27 @@ typeModifiersP = do
 --
 
 classModifierP :: Parser String
-classModifierP = reservedLP "abstract"
-  <|> reservedLP "final"
-  <|> reservedLP "enum"
-  <|> "open" ->> []
-  <|> reservedLP "annotation"
+classModifierP = reservedWordsLP w
   <|> "sealed" ->> "abstract"
   <|> "data" ->> []
+  <|> "open" ->> []
+  where
+    w =  [ "abstract"
+         , "final"
+         ,"enum"
+         , "annotation"
+         ]
 --
 
 memberModifierP :: Parser String
-memberModifierP = reservedLP "final"
-  <|> reservedLP "abstract"
+memberModifierP = reservedWordsLP w 
   <|> "open" ->> []
   <|> "lateinit" ->> []
   <|> "override" ->> "@override"
+  where
+    w = [ "final"
+        , "abstract"
+        ]
 --
 
 accessModifierP :: Parser String
@@ -57,28 +66,31 @@ accessModifierP = reservedLP "public"
 --
 
 varianceAnnotationP :: Parser String
-varianceAnnotationP = reservedLP "in" <|> reservedLP "out"
+varianceAnnotationP = reservedWordsLP [ "in", "out" ]
 
 parameterModifierP :: Parser String
-parameterModifierP = flip convertParserP [] $ reservedLP "noinline"
-  <|> reservedLP "crossinline"
-  <|> reservedLP "vararg"
+parameterModifierP = flip convertParserP [] $ reservedWordsLP w
+  where
+    w = [ "noinline"
+        , "crossinline"
+        , "vararg"
+        ]
 --
 
 typeParameterModifierP :: Parser String
-typeParameterModifierP = reservedP "reified"
+typeParameterModifierP = reservedLP "reified"
 
 functionModifierP :: Parser String
 functionModifierP = "tailrec" ->> []
-  <|> reservedP "operator"
+  <|> reservedLP "operator"
   <|> "infix" ->> []
-  <|> reservedP "inline"
+  <|> reservedLP "inline"
   <|> "external" ->> "/* This is a JNI function */"
   <|> suspendModifierP
 --
 
 propertyModifierP :: Parser String
-propertyModifierP = reservedP "const"
+propertyModifierP = reservedLP "const"
 
 suspendModifierP :: Parser String
-suspendModifierP = reservedP "suspend"
+suspendModifierP = reservedLP "suspend"
