@@ -12,6 +12,7 @@ import {-# SOURCE #-} Rules
 
 typeP :: Parser String
 typeP = do
+  newLines0P
   m <- typeModifiersP
   r <- typeReferenceP
   return $ m ++ r
@@ -20,7 +21,7 @@ typeP = do
 typeReferenceP :: Parser String
 typeReferenceP = do
   a <- o
-  reservedP "" <~> reservedP "?"
+  reservedP [] <~> reservedP "?"
   return a
   where o = reservedP "dynamic"
           <|> functionTypeP
@@ -47,6 +48,7 @@ typeArgumentsP = do
 typeParametersP :: Parser String
 typeParametersP = do
   reservedP "<"
+  spaces0P
   tps <- reservedP "," \|/ typeParameterP
   reservedP ">"
   return $ '<' : join tps ++ ">"
@@ -104,8 +106,9 @@ functionTypeP :: Parser String
 functionTypeP = do
   b <- bracketsP $ option0 [] $ reservedP "," \|/ simpleNameP
   reservedP "->"
+  newLines0P
   c <- typeP
-  return $ "Function" ++ "/* (" ++ join b ++ ")" ++ c ++ "*/"
+  return $ "Function" ++ "/* (" ++ join b ++ ") -> " ++ c ++ " */"
 --
 
 typeConstraintsP :: Parser String

@@ -16,7 +16,9 @@ import {-# SOURCE #-} Types
 functionP :: Parser String
 functionP = do
   reservedP "fun"
+  spaces0P
   tp <- option0 [] typeParametersP
+  spaces0P
   rc <- option0 [] $ do
     t <- typeP
     reservedLP "."
@@ -25,11 +27,11 @@ functionP = do
   vp <- valueParametersP
   rt <- option0 [] $ do
     reservedLP ":"
+    newLines0P
     t <- typeP
     return $ t ++ " "
   tc <- typeConstraintsP
   fb <- option0 [] functionBodyP
-  newLines0P
   return $ rt ++ sn ++ tp ++ vp ++ fb
 --
 
@@ -43,6 +45,7 @@ functionBodyP = blockP <~> do
 functionLiteralP :: Parser String
 functionLiteralP = a <|> do
   reservedLP "{"
+  newLines0P
   p <- reservedLP "," \|/ lambdaParameterP
   reservedLP "->"
   s <- statementsP

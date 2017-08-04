@@ -161,16 +161,22 @@ spacesP = do
 --
 
 spaces0P :: Parser String
-spaces0P = option0 [] spacesP
+spaces0P = do
+  a <- many $ oneOf " \t\r"
+  return $ if a == [] then [] else [ head a ]
+--
 
 newLinesP :: Parser String
 newLinesP = do
   some $ oneOf " \t\r\n"
-  return "\n"
+  return " "
 --
 
 newLines0P :: Parser String
-newLines0P = option0 [] newLinesP
+newLines0P = do
+  a <- many $ oneOf " \t\r\n"
+  return $ if a == [] then [] else [ head a ]
+--
 
 stringP :: String -> Parser String
 stringP [      ] = return []
@@ -182,16 +188,16 @@ stringP (c : cs) = do
 
 tokenP :: Parser String -> Parser String
 tokenP p = do
-  a <- p
   s <- spaces0P
-  return $ a ++ s
+  a <- p
+  return $ s ++ a
 --
 
 tokenLP :: Parser String -> Parser String
 tokenLP p = do
-  a <- p
   s <- newLines0P
-  return $ a ++ s
+  a <- p
+  return $ s ++ a
 --
 
 seperateP :: Parser String -> Parser String -> Parser [String]

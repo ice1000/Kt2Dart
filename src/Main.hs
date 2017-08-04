@@ -16,7 +16,11 @@ main = do
   allCodes <- readFile file
   putStrLn "File contents:"
   putStrLn allCodes
-  putStrLn $ case functionP <|| allCodes of
+  putStrLn $ case p <|| allCodes of
     (Left  o) -> "Error:\n" ++ o
     (Right o) -> o
+  where p = do
+          f <- functionP
+          newLines0P
+          return f
 --

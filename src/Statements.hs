@@ -21,7 +21,7 @@ statementsP = do
 --
 
 statementP :: Parser String
-statementP = reservedP "stmt"
+statementP = reservedLP "stmt"
 
 jumpP :: Parser String
 jumpP = throwP <|> returnP <|> continueP <|> breakP

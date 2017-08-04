@@ -15,7 +15,7 @@ import {-# SOURCE #-} Statements
 parameterP :: Parser String
 parameterP = do
   n <- simpleNameP
-  spaces0P
+  newLines0P
   reservedP ":"
   t <- typeP
   return $ t ++ " " ++ n

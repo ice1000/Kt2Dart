@@ -12,8 +12,8 @@ import {-# SOURCE #-} Rules
 
 annotationsP :: Parser String
 annotationsP = do
-  s <- newLines0P \|/ annotationP <|> annotationListP
   newLines0P
+  s <- newLines0P \|/ annotationP <|> annotationListP
   return $ join s
 --
 
