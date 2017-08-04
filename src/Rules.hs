@@ -54,7 +54,7 @@ valueParametersP = do
 functionParameterP :: Parser String
 functionParameterP = do
   m <- option0 [] modifiersP
-  reservedLP [] <~> reservedP "var" <|> "val" =>> "var"
+  reservedLP [] <~> reservedP "var" <|> "val" ->> "var"
   p <- parameterP
   e <- reservedP [] <~> do
     reservedLP "="
@@ -97,4 +97,9 @@ multipleVariableDeclarations = do
   reservedLP ")"
   return $ "/* WARNING: destructing declaration "
     ++ join l ++ " is not supported */"
+--
+
+controlStructureBodyP :: Parser String
+controlStructureBodyP = do
+  undefined
 --

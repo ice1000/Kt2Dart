@@ -32,48 +32,48 @@ typeModifiersP = do
 --
 
 classModifierP :: Parser String
-classModifierP = reservedP "abstract"
-  <|> reservedP "final"
-  <|> reservedP "enum"
-  <|> "open" =>> []
-  <|> reservedP "annotation"
-  <|> "sealed" =>> "abstract"
-  <|> "data" =>> []
+classModifierP = reservedLP "abstract"
+  <|> reservedLP "final"
+  <|> reservedLP "enum"
+  <|> "open" ->> []
+  <|> reservedLP "annotation"
+  <|> "sealed" ->> "abstract"
+  <|> "data" ->> []
 --
 
 memberModifierP :: Parser String
-memberModifierP = reservedP "final"
-  <|> reservedP "abstract"
-  <|> "open" =>> []
-  <|> "lateinit" =>> []
-  <|> "override" =>> "@override"
+memberModifierP = reservedLP "final"
+  <|> reservedLP "abstract"
+  <|> "open" ->> []
+  <|> "lateinit" ->> []
+  <|> "override" ->> "@override"
 --
 
 accessModifierP :: Parser String
-accessModifierP = reservedP "public"
-  <|> reservedP "private"
-  <|> reservedP "protected"
-  <|> "internal" =>> []
+accessModifierP = reservedLP "public"
+  <|> reservedLP "private"
+  <|> reservedLP "protected"
+  <|> "internal" ->> []
 --
 
 varianceAnnotationP :: Parser String
-varianceAnnotationP = reservedP "in" <|> reservedP "out"
+varianceAnnotationP = reservedLP "in" <|> reservedLP "out"
 
 parameterModifierP :: Parser String
-parameterModifierP = flip convertParserP [] $ reservedP "noinline"
-  <|> reservedP "crossinline"
-  <|> reservedP "vararg"
+parameterModifierP = flip convertParserP [] $ reservedLP "noinline"
+  <|> reservedLP "crossinline"
+  <|> reservedLP "vararg"
 --
 
 typeParameterModifierP :: Parser String
 typeParameterModifierP = reservedP "reified"
 
 functionModifierP :: Parser String
-functionModifierP = "tailrec" =>> []
+functionModifierP = "tailrec" ->> []
   <|> reservedP "operator"
-  <|> "infix" =>> []
+  <|> "infix" ->> []
   <|> reservedP "inline"
-  <|> "external" =>> "/* This is a JNI function */"
+  <|> "external" ->> "/* This is a JNI function */"
   <|> suspendModifierP
 --
 

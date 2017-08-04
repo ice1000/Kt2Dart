@@ -90,8 +90,9 @@ annotatedLambdaP :: Parser String
 annotatedLambdaP = do
   ua <- many $ do
     reservedLP "@"
-    unescapedAnnotationP
-    return "/* WARNING: annotated lambda is not supported */"
+    a <- unescapedAnnotationP
+    return $ "/* WARNING: annotated lambda "
+      ++ a ++ " is not supported */"
   ld <- option0 [] labelDefinitionP
   fl <- functionLiteralP
   return $ f ua ++ ld ++ fl

@@ -9,9 +9,9 @@ import Data.Either
 import Control.Monad
 import Control.Applicative
 
------------------------------------------------------
---------------- my parser combinator ----------------
------------------------------------------------------
+---------------------------------------------------------
+----------------- my parser combinator ------------------
+---------------------------------------------------------
 
 newtype Parser val = Parser { parse :: String -> [(val, String)]  }
 
@@ -109,9 +109,9 @@ convertParserP s = (s >>) . return
 
 bracketsP :: Parser b -> Parser b
 bracketsP m = do
-  reservedP "("
+  reservedLP "("
   n <- m
-  reservedP ")"
+  reservedLP ")"
   return n
 --
 

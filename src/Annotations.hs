@@ -12,14 +12,13 @@ import {-# SOURCE #-} Rules
 
 annotationsP :: Parser String
 annotationsP = do
-  newLines0P
   s <- newLines0P \|/ annotationP <|> annotationListP
   return $ join s
 --
 
 annotationP :: Parser String
 annotationP = do
-  reservedP "@"
+  reservedLP "@"
   s <- option0 [] $ do
     a <- annotationUseSiteTargetP
     reservedLP ":"
@@ -58,7 +57,7 @@ annotationUseSiteTargetP = reservedWordsLP words
 
 unescapedAnnotationP :: Parser String
 unescapedAnnotationP = do
-  ns <- reservedLP "." \|/ tokenP simpleNameP
+  ns <- reservedLP "." \|/ tokenLP simpleNameP
   ta <- option0 [] typeArgumentsP
   va <- option0 [] valueArgumentsP
   return $ join ns ++ ta ++ va

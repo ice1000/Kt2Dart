@@ -41,3 +41,28 @@ jumpP = throwP <|> returnP <|> continueP <|> breakP
     continueP = jumper "continue"
     breakP = jumper "break"
 --
+
+-- | very complex
+whenP :: Parser String
+whenP = do
+  reservedLP "when"
+  c <- option0 [] $ bracketsP expressionP
+  reservedLP "{"
+  w <- many whenEntryP
+  reservedLP "}"
+--
+
+whenEntryP :: Parser String
+whenEntryP = a <|> b
+  where
+    a = do
+      wc <- "," ->> ":case " \|/ whenConditionP
+      reservedLP "->"
+      cs <- controlStructureBodyP
+      semiP
+      return $ "case " ++ join wc ++ ":" ++ cs
+    b = reservedLP []
+--
+
+whenConditionP :: Parser String
+whenConditionP = undefined
