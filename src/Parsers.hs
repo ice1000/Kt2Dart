@@ -5,7 +5,6 @@ module Parsers where
 
 import Data.Char
 import Data.List
-import Data.Either
 import Control.Monad
 import Control.Applicative
 
@@ -208,6 +207,11 @@ seperateP ns ss = do
     r <- seperateP ns ss
     return $ n : s : r
 --
+
+fromRight :: b -> Either a b -> b
+fromRight r (Left  _) = r
+fromRight _ (Right r) = r
+
 
 (\|/) = flip seperateP
 (=>>) = convertReservedP
