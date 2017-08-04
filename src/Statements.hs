@@ -37,7 +37,7 @@ jumpP = throwP <|> returnP <|> continueP <|> breakP
     returnP = do
       l <- jumper "return"
       e <- option0 [] expressionP
-      return $ "return " ++ l ++ e
+      return $ l ++ e
     continueP = jumper "continue"
     breakP = jumper "break"
 --

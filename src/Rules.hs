@@ -15,17 +15,16 @@ import {-# SOURCE #-} Statements
 parameterP :: Parser String
 parameterP = do
   n <- simpleNameP
-  newLines0P
-  reservedP ":"
+  reservedLP ":"
   t <- typeP
   return $ t ++ " " ++ n
 --
 
 blockP :: Parser String
 blockP = do
-  reservedP "{"
+  reservedLP "{"
   s <- statementsP
-  reservedP "}"
+  reservedLP "}"
   return $ '{' : s ++ "}"
 --
 
@@ -46,7 +45,7 @@ valueArgumentsP = do
 valueParametersP :: Parser String
 valueParametersP = do
   ls <- bracketsP $ option0 [] $
-    reservedP "," \|/ functionParameterP
+    reservedLP "," \|/ functionParameterP
   return $ '(' : join ls ++ ")"
 --
 
@@ -55,10 +54,10 @@ valueParametersP = do
 functionParameterP :: Parser String
 functionParameterP = do
   m <- option0 [] modifiersP
-  reservedP [] <~> reservedP "var" <|> "val" =>> "var"
+  reservedLP [] <~> reservedP "var" <|> "val" =>> "var"
   p <- parameterP
   e <- reservedP [] <~> do
-    reservedP "="
+    reservedLP "="
     e <- expressionP
     return $ '=' : e
   return $ m ++ p ++ e
@@ -67,17 +66,16 @@ functionParameterP = do
 -- | Here's another issue
 --   There is a duplicate `charP '@'` in the doc
 labelReferenceP :: Parser String
-labelReferenceP = tokenP labelNameP
+labelReferenceP = labelNameP
 
 -- | Here's another another issue
 --   There is a duplicate `charP '@'` in the doc
 labelDefinitionP :: Parser String
-labelDefinitionP = tokenP labelNameSP
+labelDefinitionP = labelNameSP
 
 theTypedP :: Parser String -> Parser String
 theTypedP s = do
   n <- s
-  spaces0P
   o <- option0 [] $ do
     reservedLP ":"
     typeP

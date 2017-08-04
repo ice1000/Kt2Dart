@@ -39,18 +39,17 @@ typeReferenceP = do
 
 typeArgumentsP :: Parser String
 typeArgumentsP = do
-  reservedP "<"
-  ts <- reservedP "," \|/ typeP
-  reservedP ">"
+  reservedLP "<"
+  ts <- reservedLP "," \|/ typeP
+  reservedLP ">"
   return $ '<' : join ts ++ ">"
 --
 
 typeParametersP :: Parser String
 typeParametersP = do
-  reservedP "<"
-  spaces0P
-  tps <- reservedP "," \|/ typeParameterP
-  reservedP ">"
+  reservedLP "<"
+  tps <- reservedLP "," \|/ typeParameterP
+  reservedLP ">"
   return $ '<' : join tps ++ ">"
 --
 
@@ -59,7 +58,7 @@ typeParameterP = do
   m <- modifiersP
   n <- simpleNameP
   e <- option0 [] $ do
-    reservedP ":"
+    reservedLP ":"
     t <- userTypeP
     return $ "extends " ++ t
   return $ m ++ n ++ e
@@ -79,7 +78,7 @@ typeAliasP = do
 
 userTypeP :: Parser String
 userTypeP = do
-  ls <- reservedP "." \|/ simpleUserTypeP
+  ls <- reservedLP "." \|/ simpleUserTypeP
   return $ join ls
 --
 
@@ -91,11 +90,11 @@ simpleUserTypeP :: Parser String
 simpleUserTypeP = do
   n <- simpleNameP
   p <- reservedP [] <~> do
-    reservedP "<"
-    ls <- reservedP "," \|/ reservedP "*" <|> do
+    reservedLP "<"
+    ls <- reservedLP "," \|/ reservedLP "*" <|> do
       o <- option0 [] optionalProjectionP
       typeP
-    reservedP ">"
+    reservedLP ">"
     return $ '<' : join ls ++ ">"
   return $ n ++ p
 --
@@ -104,9 +103,8 @@ simpleUserTypeP = do
 --   The `simple name` is `paramter` in the doc
 functionTypeP :: Parser String
 functionTypeP = do
-  b <- bracketsP $ option0 [] $ reservedP "," \|/ simpleNameP
+  b <- bracketsP $ option0 [] $ reservedLP "," \|/ simpleNameP
   reservedP "->"
-  newLines0P
   c <- typeP
   return $ "Function" ++ "/* (" ++ join b ++ ") -> " ++ c ++ " */"
 --

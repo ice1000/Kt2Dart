@@ -15,7 +15,7 @@ import {-# SOURCE #-} Strings
 import {-# SOURCE #-} Functions
 
 expressionP :: Parser String
-expressionP = reservedP "expr"
+expressionP = reservedLP "expr"
 
 blockLevelExpressionP :: Parser String
 blockLevelExpressionP = do
