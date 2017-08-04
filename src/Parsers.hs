@@ -5,6 +5,7 @@ module Parsers where
 
 import Data.Char
 import Data.List
+import Data.Either
 import Control.Monad
 import Control.Applicative
 
@@ -206,6 +207,7 @@ seperateP ns ss = do
 (=>>) = convertReservedP
 (->>) = convertReservedLP
 (<||) = parseCode
+(<|||) a = putStrLn . fromRight "Parse Error" . parseCode a
 
 digitP :: Parser Char
 digitP = satisfy isDigit

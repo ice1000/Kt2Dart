@@ -60,15 +60,17 @@ noEscapeStringP = do
 
 regularStringPartP :: Parser String
 regularStringPartP = do
-  c <- noneOf "\\\r\n\"$"
-  return [c]
+  c <- some $ noneOf "\\\r\n\"$"
+  return c
 --
 
 shortTemplateEmtryStartP :: Parser String
 shortTemplateEmtryStartP = stringP "$"
 
 escapeSequenceP :: Parser String
-escapeSequenceP = unicodeEscapeSequeceP <|> regularEscapeSequenceP
+escapeSequenceP = regularEscapeSequenceP
+  <|>unicodeEscapeSequeceP
+--
 
 unicodeEscapeSequeceP :: Parser String
 unicodeEscapeSequeceP = do
@@ -82,8 +84,9 @@ unicodeEscapeSequeceP = do
 
 regularEscapeSequenceP :: Parser String
 regularEscapeSequenceP = do
+  charP '\\'
   c <- noneOf "\n"
-  return [c]
+  return [ '\\', c ]
 --
 
 semiP :: Parser Char

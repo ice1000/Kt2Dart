@@ -10,6 +10,7 @@ import LexicalStructure
 import {-# SOURCE #-} Modifiers
 import {-# SOURCE #-} Rules
 import {-# SOURCE #-} Expressions
+import {-# SOURCE #-} Statements
 import {-# SOURCE #-} Types
 
 functionP :: Parser String
@@ -39,3 +40,16 @@ functionBodyP = blockP <~> do
   return $ "=>" ++ e
 --
 
+functionLiteralP :: Parser String
+functionLiteralP = a <|> do
+  reservedLP "{"
+  p <- reservedLP "," \|/ lambdaParameterP
+  reservedLP "->"
+  s <- statementsP
+  reservedLP "}"
+  return $ '(' : join p ++ "){" ++ s ++ "}"
+  where
+    a = do
+      b <- blockP
+      return $ "()" ++ b
+--

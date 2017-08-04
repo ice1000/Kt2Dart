@@ -12,16 +12,16 @@ import {-# SOURCE #-} Expressions
 stringTemplateP :: Parser String
 stringTemplateP = do
   charP '"'
-  e <- many $ stringTemplateElementP
-  charP '"'
+  e <- option0 [] $ some stringTemplateElementP
+  reservedLP [ '"' ]
   return $ '"' : join e ++ [ '"' ]
 --
 
 stringTemplateElementP :: Parser String
 stringTemplateElementP = regularStringPartP
-  <|> shortTemplateEmtryStartP
-  <|> escapeSequenceP
-  <|> longTemplateP
+   <|> shortTemplateEmtryStartP
+   <|> escapeSequenceP
+   <|> longTemplateP
 --
 
 longTemplateP :: Parser String

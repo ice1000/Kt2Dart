@@ -18,5 +18,4 @@ annotatedLambdaP :: Parser String
 callSuffixP :: Parser String
 postfixUnaryOperationP :: Parser String
 memberAccessOperationP :: Parser String
-functionLiteralP :: Parser String
 arrayAccessP :: Parser String

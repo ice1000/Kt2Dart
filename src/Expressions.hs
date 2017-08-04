@@ -12,6 +12,7 @@ import {-# SOURCE #-} Rules
 import {-# SOURCE #-} Types
 import {-# SOURCE #-} Statements
 import {-# SOURCE #-} Strings
+import {-# SOURCE #-} Functions
 
 expressionP :: Parser String
 expressionP = reservedP "expr"
@@ -109,20 +110,6 @@ literalConstantP = reservedWordsLP [ "true", "false", "null" ]
   <|> hexadecimalLiteralP
   <|> characterLiteralP
   <|> floatLiteralP
---
-
-functionLiteralP :: Parser String
-functionLiteralP = a <|> do
-  reservedLP "{"
-  p <- reservedLP "," \|/ lambdaParameterP
-  reservedLP "->"
-  s <- statementsP
-  reservedLP "}"
-  return $ '(' : join p ++ "){" ++ s ++ "}"
-  where
-    a = do
-      b <- blockP
-      return $ "()" ++ b
 --
 
 arrayAccessP :: Parser String
