@@ -9,6 +9,7 @@ import Parsers
 import LexicalStructure
 import {-# SOURCE #-} Modifiers
 import {-# SOURCE #-} Rules
+import {-# SOURCE #-} Expressions
 import {-# SOURCE #-} Types
 
 functionP :: Parser String
@@ -17,16 +18,15 @@ functionP = do
   tp <- option0 [] typeParametersP
   rc <- option0 [] $ do
     t <- typeP
-    reservedP "."
+    reservedLP "."
     return t
   sn <- simpleNameP
   vp <- valueParametersP
-  rt <- option0 "" $ do
-    reservedP ":"
+  rt <- option0 [] $ do
+    reservedLP ":"
     t <- typeP
     return $ t ++ " "
   tc <- typeConstraintsP
---  newLines0P
   fb <- option0 [] functionBodyP
   newLines0P
   return $ rt ++ sn ++ tp ++ vp ++ fb
@@ -34,7 +34,7 @@ functionP = do
 
 functionBodyP :: Parser String
 functionBodyP = blockP <~> do
-  reservedP "="
+  reservedLP "="
   e <- expressionP
   return $ "=>" ++ e
 --

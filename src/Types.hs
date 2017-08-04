@@ -105,7 +105,7 @@ functionTypeP = do
   b <- bracketsP $ option0 [] $ reservedP "," \|/ simpleNameP
   reservedP "->"
   c <- typeP
-  return "Function" -- "(" ++ join b ++ ")" ++ c
+  return $ "Function" ++ "/* (" ++ join b ++ ")" ++ c ++ "*/"
 --
 
 typeConstraintsP :: Parser String

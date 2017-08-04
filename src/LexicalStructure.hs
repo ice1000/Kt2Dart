@@ -111,5 +111,15 @@ simpleNameP = javaIdentifierP <|> do
 labelNameP :: Parser String
 labelNameP = do
   charP '@'
-  javaIdentifierP
+  ji <- javaIdentifierP
+  return $ "/* WARNING: label usage "
+    ++ ji ++ " is not supported */"
+--
+
+labelNameSP :: Parser String
+labelNameSP = do
+  ji <- javaIdentifierP
+  charP '@'
+  return $ "/* WARNING: label definition "
+    ++ ji ++ " is not supported */"
 --

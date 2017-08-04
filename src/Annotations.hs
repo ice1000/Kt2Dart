@@ -12,7 +12,8 @@ import {-# SOURCE #-} Rules
 
 annotationsP :: Parser String
 annotationsP = do
-  s <- spaces0P \|/ annotationP <|> annotationListP
+  s <- newLines0P \|/ annotationP <|> annotationListP
+  newLines0P
   return $ join s
 --
 
@@ -21,7 +22,7 @@ annotationP = do
   reservedP "@"
   s <- option0 [] $ do
     a <- annotationUseSiteTargetP
-    reservedP ":"
+    reservedLP ":"
     return $ a ++ ":"
   u <- unescapedAnnotationP
   return $ '@' : s ++ u
@@ -32,29 +33,32 @@ annotationListP = do
   reservedP "@"
   s <- option0 [] $ do
     a <- annotationUseSiteTargetP
-    reservedP ":"
+    reservedLP ":"
     return []
-  reservedP "["
+  reservedLP "["
   u <- some unescapedAnnotationP
-  reservedP "]"
+  reservedLP "]"
   return $ '@' : s ++ join u
 --
 
 annotationUseSiteTargetP :: Parser String
-annotationUseSiteTargetP = reservedP "field"
-  <|> reservedP "file"
-  <|> reservedP "property"
-  <|> reservedP "get"
-  <|> reservedP "set"
-  <|> reservedP "reciever"
-  <|> reservedP "param"
-  <|> reservedP "setparam"
-  <|> reservedP "delegate"
+annotationUseSiteTargetP = reservedWordsLP words
+  where
+    words = [ "field"
+            , "file"
+            , "property"
+            , "get"
+            , "set"
+            , "reciever"
+            , "param"
+            , "setparam"
+            , "delegate"
+            ]
 --
 
 unescapedAnnotationP :: Parser String
 unescapedAnnotationP = do
-  ns <- reservedP "." \|/ tokenP simpleNameP
+  ns <- reservedLP "." \|/ tokenP simpleNameP
   ta <- option0 [] typeArgumentsP
   va <- option0 [] valueArgumentsP
   return $ join ns ++ ta ++ va

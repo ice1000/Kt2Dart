@@ -9,20 +9,8 @@ import Parsers
 import LexicalStructure
 import {-# SOURCE #-} Types
 import {-# SOURCE #-} Modifiers
-
-expressionP :: Parser String
-expressionP = reservedP "expr"
-
-statementsP :: Parser String
-statementsP = do
-  many semiP
-  s <- option0 [] $ some semiP \|/ statementP
-  many semiP
-  return $ join s ++ if s /= [] then ";" else []
---
-
-statementP :: Parser String
-statementP = reservedP "stmt"
+import {-# SOURCE #-} Expressions
+import {-# SOURCE #-} Statements
 
 parameterP :: Parser String
 parameterP = do
@@ -75,3 +63,10 @@ functionParameterP = do
   return $ m ++ p ++ e
 --
 
+-- | Here's another issue
+--   There is a duplicate `charP '@'` in the doc
+labelReferenceP :: Parser String
+labelReferenceP = labelNameP
+
+labelDefinitionP :: Parser String
+labelDefinitionP = labelNameSP

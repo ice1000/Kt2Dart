@@ -2,10 +2,12 @@
 
 module Main where
 
-import Kt2Dart
 import Control.Monad
 
 import System.IO
+
+import Parsers
+import {-# SOURCE #-} Functions
 
 main :: IO ()
 main = do
@@ -14,7 +16,7 @@ main = do
   allCodes <- readFile file
   putStrLn "File contents:"
   putStrLn allCodes
-  putStrLn $ case kotlin2Dart allCodes of
+  putStrLn $ case functionP <|| allCodes of
     (Left  o) -> "Error:\n" ++ o
     (Right o) -> o
 --

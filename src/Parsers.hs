@@ -141,6 +141,12 @@ reservedP = tokenP . stringP
 reservedLP :: String -> Parser String
 reservedLP = tokenLP . stringP
 
+reservedWordsLP :: [String] -> Parser String
+reservedWordsLP = foldr1 (<|>) . (reservedLP <$>)
+
+reservedWordsP :: [String] -> Parser String
+reservedWordsP = foldr1 (<|>) . (reservedP <$>)
+
 convertReservedP :: String -> String -> Parser String
 convertReservedP a = tokenP . convertStringP a
 
@@ -159,7 +165,7 @@ spaces0P = option0 [] spacesP
 newLinesP :: Parser String
 newLinesP = do
   some $ oneOf " \t\r\n"
-  return " "
+  return "\n"
 --
 
 newLines0P :: Parser String
@@ -199,6 +205,7 @@ seperateP ns ss = do
 (\|/) = flip seperateP
 (=>>) = convertReservedP
 (->>) = convertReservedLP
+(<||) = parseCode
 
 digitP :: Parser Char
 digitP = satisfy isDigit
