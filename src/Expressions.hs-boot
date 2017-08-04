@@ -19,3 +19,4 @@ callSuffixP :: Parser String
 postfixUnaryOperationP :: Parser String
 memberAccessOperationP :: Parser String
 arrayAccessP :: Parser String
+constructorInvocationP :: Parser String

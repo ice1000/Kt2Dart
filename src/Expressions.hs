@@ -113,4 +113,16 @@ literalConstantP = reservedWordsLP [ "true", "false", "null" ]
 --
 
 arrayAccessP :: Parser String
-arrayAccessP = undefined
+arrayAccessP = do
+  reservedLP "["
+  e <- reservedLP "," \|/ expressionP
+  reservedLP "]"
+  return $ '[' : join e ++ "]"
+--
+
+constructorInvocationP :: Parser String
+constructorInvocationP = do
+  t <- userTypeP
+  s <- callSuffixP
+  return $ t ++ s
+--
