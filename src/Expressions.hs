@@ -11,6 +11,7 @@ import Annotations
 import {-# SOURCE #-} Rules
 import {-# SOURCE #-} Types
 import {-# SOURCE #-} Statements
+import {-# SOURCE #-} Strings
 
 expressionP :: Parser String
 expressionP = reservedP "expr"
@@ -100,8 +101,29 @@ annotatedLambdaP = do
 memberAccessOperationP :: Parser String
 memberAccessOperationP = reservedWordsLP [ ".", "?.", "?" ]
 
+literalConstantP :: Parser String
+literalConstantP = reservedWordsLP [ "true", "false", "null" ]
+  <|> stringTemplateP
+  <|> noEscapeStringP
+  <|> integerLiteralP
+  <|> hexadecimalLiteralP
+  <|> characterLiteralP
+  <|> floatLiteralP
+--
+
 functionLiteralP :: Parser String
-functionLiteralP = undefined
+functionLiteralP = a <|> do
+  reservedLP "{"
+  p <- reservedLP "," \|/ lambdaParameterP
+  reservedLP "->"
+  s <- statementsP
+  reservedLP "}"
+  return $ '(' : join p ++ "){" ++ s ++ "}"
+  where
+    a = do
+      b <- blockP
+      return $ "()" ++ b
+--
 
 arrayAccessP :: Parser String
 arrayAccessP = undefined

@@ -45,7 +45,8 @@ valueArgumentsP = do
 
 valueParametersP :: Parser String
 valueParametersP = do
-  ls <- bracketsP $ option0 [] $ reservedP "," \|/ functionParameterP
+  ls <- bracketsP $ option0 [] $
+    reservedP "," \|/ functionParameterP
   return $ '(' : join ls ++ ")"
 --
 
@@ -66,7 +67,36 @@ functionParameterP = do
 -- | Here's another issue
 --   There is a duplicate `charP '@'` in the doc
 labelReferenceP :: Parser String
-labelReferenceP = labelNameP
+labelReferenceP = tokenP labelNameP
 
+-- | Here's another another issue
+--   There is a duplicate `charP '@'` in the doc
 labelDefinitionP :: Parser String
-labelDefinitionP = labelNameSP
+labelDefinitionP = tokenP labelNameSP
+
+theTypedP :: Parser String -> Parser String
+theTypedP s = do
+  n <- s
+  spaces0P
+  o <- option0 [] $ do
+    reservedLP ":"
+    typeP
+  return $ o ++ " " ++ n
+--
+
+lambdaParameterP :: Parser String
+lambdaParameterP = variableDeclarationEntry
+  <|> theTypedP multipleVariableDeclarations
+--
+
+variableDeclarationEntry :: Parser String
+variableDeclarationEntry = theTypedP simpleNameP
+
+multipleVariableDeclarations :: Parser String
+multipleVariableDeclarations = do
+  reservedLP "("
+  l <- reservedLP "," \|/ variableDeclarationEntry
+  reservedLP ")"
+  return $ "/* WARNING: destructing declaration "
+    ++ join l ++ " is not supported */"
+--

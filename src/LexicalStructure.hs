@@ -64,8 +64,8 @@ regularStringPartP = do
   return [c]
 --
 
-shortTemplateEmtryStartP :: Parser Char
-shortTemplateEmtryStartP = charP '$'
+shortTemplateEmtryStartP :: Parser String
+shortTemplateEmtryStartP = stringP "$"
 
 escapeSequenceP :: Parser String
 escapeSequenceP = unicodeEscapeSequeceP <|> regularEscapeSequenceP

@@ -9,3 +9,4 @@ valueParametersP :: Parser String
 functionParameterP :: Parser String
 labelReferenceP :: Parser String
 labelDefinitionP :: Parser String
+lambdaParameterP :: Parser String
