@@ -1,5 +1,4 @@
 git status
-gcc -Wall compile.c -o transpiler -O3
 cd ./src/
 ghc Main.hs -O2
 rm *~ *.hi *.hi-boot *.o-boot *.o
