@@ -6,6 +6,7 @@ mv ./Main ./../Main
 cd ./../
 rm *~ # ./Main ./transpiler
 read -p "Enter commit message:"
+echo
 git add *
 git stage *
 git commit -a -m "${REPLY}"
