@@ -79,11 +79,13 @@ theTypedP s = do
   o <- option0 [] $ do
     reservedLP ":"
     typeP
-  return $ o ++ " " ++ n
+  return $ f o ++ n
+  where f [] = []
+        f ls = ls ++ " "
 --
 
 lambdaParameterP :: Parser String
-lambdaParameterP = variableDeclarationEntry
+lambdaParameterP = tokenLP $ variableDeclarationEntry
   <|> theTypedP multipleVariableDeclarations
 --
 

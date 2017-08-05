@@ -12,7 +12,7 @@ import Control.Applicative
 ----------------- my parser combinator ------------------
 ---------------------------------------------------------
 
-newtype Parser val = Parser { parse :: String -> [(val, String)]  }
+newtype Parser a = Parser { parse :: String -> [(a, String)]  }
 
 parseCode :: Parser a -> String -> Either String a
 parseCode m s = case parse m s of
@@ -156,25 +156,25 @@ convertReservedLP a = tokenLP . convertStringP a
 spacesP :: Parser String
 spacesP = do
   some $ oneOf " \r\t"
-  return " "
+  return []
 --
 
 spaces0P :: Parser String
 spaces0P = do
   a <- many $ oneOf " \t\r"
-  return $ if a == [] then [] else [ head a ]
+  return [] --- $ if null a then [] else [ head a ]
 --
 
 newLinesP :: Parser String
 newLinesP = do
   some $ oneOf " \t\r\n"
-  return " "
+  return []
 --
 
 newLines0P :: Parser String
 newLines0P = do
   a <- many $ oneOf " \t\r\n"
-  return $ if a == [] then [] else [ head a ]
+  return [] --- $ if null a then [] else [ head a ]
 --
 
 stringP :: String -> Parser String

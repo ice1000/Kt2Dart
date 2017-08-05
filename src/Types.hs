@@ -19,9 +19,9 @@ typeP = do
 --
 
 typeReferenceP :: Parser String
-typeReferenceP = do
+typeReferenceP = tokenLP $ do
   a <- o
-  reservedP [] <~> reservedP "?"
+  many $ reservedP "?"
   return a
   where o = reservedP "dynamic"
           <|> functionTypeP
@@ -55,7 +55,9 @@ typeParametersP = do
 
 typeParameterP :: Parser String
 typeParameterP = do
+  newLines0P
   m <- modifiersP
+  newLines0P
   n <- simpleNameP
   e <- option0 [] $ do
     reservedLP ":"
@@ -87,7 +89,7 @@ optionalProjectionP = varianceAnnotationP
 
 -- | Maybe transform `*` into something else in dart
 simpleUserTypeP :: Parser String
-simpleUserTypeP = do
+simpleUserTypeP = tokenLP $ do
   n <- simpleNameP
   p <- reservedP [] <~> do
     reservedLP "<"
@@ -103,8 +105,8 @@ simpleUserTypeP = do
 --   The `simple name` is `paramter` in the doc
 functionTypeP :: Parser String
 functionTypeP = do
-  b <- bracketsP $ option0 [] $ reservedLP "," \|/ simpleNameP
-  reservedP "->"
+  b <- bracketsP $ option0 [] $ reservedLP "," \|/ tokenLP simpleNameP
+  reservedLP "->"
   c <- typeP
   return $ "Function" ++ "/* (" ++ join b ++ ") -> " ++ c ++ " */"
 --

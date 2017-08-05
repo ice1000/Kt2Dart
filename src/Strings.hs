@@ -18,15 +18,15 @@ stringTemplateP = do
 --
 
 stringTemplateElementP :: Parser String
-stringTemplateElementP = regularStringPartP
-  <|> longTemplateP
+stringTemplateElementP = longTemplateP
   <|> shortTemplateEmtryStartP
   <|> escapeSequenceP
+  <|> regularStringPartP
 --
 
 longTemplateP :: Parser String
 longTemplateP = do
-  reservedLP "${"
+  stringP "${"
   e <- expressionP
   newLines0P
   charP '}'

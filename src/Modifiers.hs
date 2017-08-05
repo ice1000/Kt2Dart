@@ -9,7 +9,7 @@ import Parsers
 import Annotations
 
 modifierP :: Parser String
-modifierP = foldr1 (<|>) $ ms
+modifierP = foldr1 (<|>) ms
   where
     ms = [ classModifierP
          , accessModifierP

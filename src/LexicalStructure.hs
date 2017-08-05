@@ -59,10 +59,7 @@ noEscapeStringP = do
 --
 
 regularStringPartP :: Parser String
-regularStringPartP = do
-  c <- some $ noneOf "\\\r\n\"$"
-  return c
---
+regularStringPartP = some $ noneOf "\\\r\n\"$"
 
 shortTemplateEmtryStartP :: Parser String
 shortTemplateEmtryStartP = stringP "$"
