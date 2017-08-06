@@ -108,6 +108,7 @@ simpleNameP = javaIdentifierP <|> do
   return i
 --
 
+-- | converts them into warnings
 labelNameP :: Parser String
 labelNameP = do
   charP '@'
@@ -116,6 +117,7 @@ labelNameP = do
     ++ ji ++ " is not supported */"
 --
 
+-- | converts them into warnings, too
 labelNameSP :: Parser String
 labelNameSP = do
   ji <- javaIdentifierP

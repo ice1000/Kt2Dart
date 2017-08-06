@@ -90,7 +90,7 @@ whenEntryP s = a <|> b
 
 -- | s is expected to be not empty
 whenConditionP :: String -> Parser String
-whenConditionP s = in' <|> is' <|> expressionP
+whenConditionP s = in' <|> is' <|> ex'
   where
     in' = do
       r <- inOperationP
@@ -104,4 +104,36 @@ whenConditionP s = in' <|> is' <|> expressionP
       return $ if head r == '!'
         then "!(" ++ s ++ " is " ++ t ++ ")"
         else s ++ " is " ++ t
+    ex' = do
+      e <- expressionP
+      return $ e ++ "==" ++ s
+--
+
+tryP :: Parser String
+tryP = do
+  reservedLP "try"
+  t <- blockP
+  c <- many catchBlockP
+  f <- option0 [] finallyBlockP
+  return $ t ++ join c ++ f
+--
+
+catchBlockP :: Parser String
+catchBlockP = do
+  reservedLP "catch"
+  reservedLP "("
+  a <- annotationsP
+  n <- simpleNameP
+  reservedLP ":"
+  t <- userTypeP
+  reservedLP ")"
+  b <- blockP
+  return $ "catch(" ++ optionalPrefix a ++ t ++ " " ++ n ++ "){" ++ b ++ "}"
+--
+
+finallyBlockP :: Parser String
+finallyBlockP = do
+  reservedLP "finally"
+  b <- blockP
+  return $ "finally{" ++ b ++ "}"
 --

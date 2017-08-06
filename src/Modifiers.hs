@@ -85,7 +85,7 @@ functionModifierP = "tailrec" ->> []
   <|> reservedLP "operator"
   <|> "infix" ->> []
   <|> reservedLP "inline"
-  <|> "external" ->> "/* This is a JNI function */"
+  <|> "external" ->> "/* WARNING: This is a JNI function */"
   <|> suspendModifierP
 --
 

@@ -1,5 +1,3 @@
-{-# LANGUAGE ApplicativeDo #-}
-
 module Expressions where
 
 import Parsers
@@ -26,3 +24,5 @@ typeRhsP :: Parser String
 multiplicativeExpressionP :: Parser String
 additiveExpressionP :: Parser String
 rangeExpressionP :: Parser String
+callableReferenceP :: Parser String
+atomicExpressionP :: Parser String

@@ -8,3 +8,6 @@ jumpP :: Parser String
 whenP :: Parser String
 whenEntryP :: String -> Parser String
 whenConditionP :: String -> Parser String
+tryP :: Parser String
+catchBlockP :: Parser String
+finallyBlockP :: Parser String

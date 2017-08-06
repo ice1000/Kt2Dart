@@ -21,14 +21,14 @@ typeP = do
 typeReferenceP :: Parser String
 typeReferenceP = tokenLP $ do
   a <- o
-  many $ reservedP "?"
+  r <- option0 [] $ reservedLP "?"
   return a
   where o = reservedP "dynamic"
           <|> functionTypeP
           <|> userTypeP
           -- <|> nullableTypeP
           <|> bracketsP typeReferenceP
---
+--  
 
 -- nullableTypeP :: Parser String
 -- nullableTypeP = do

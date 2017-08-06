@@ -90,14 +90,10 @@ annotatedLambdaP :: Parser String
 annotatedLambdaP = do
   ua <- many $ do
     reservedLP "@"
-    a <- unescapedAnnotationP
-    return $ "/* WARNING: annotated lambda "
-      ++ a ++ " is not supported */"
+    unescapedAnnotationP
   ld <- option0 [] labelDefinitionP
   fl <- functionLiteralP
-  return $ f ua ++ ld ++ fl
-  where f [     ] = []
-        f (a : _) = a
+  return $ "/* WARNING: annotated lambda " ++ join ua ++ " is not supported */" ++ ld ++ fl
 --
 
 memberAccessOperationP :: Parser String
@@ -173,8 +169,58 @@ additiveExpressionP = do
 --
 
 rangeExpressionP :: Parser String
-rangeExpressionP = undefined
+rangeExpressionP = do
+  e <- additiveExpressionP
+  m <- many $ do
+    o <- reservedLP ".."
+    e <- additiveExpressionP
+    return $ o ++ e
+  return $ e ++ join m
+--
 
 callableReferenceP :: Parser String
 callableReferenceP = do
-  
+  t <- option0 [] $ do
+    t <- userTypeP
+    many $ reservedLP "?"
+    return t
+  -- there're no such stupid stuff in Dart
+  reservedLP "::"
+  newLines0P
+  n <- simpleNameP
+  o <- option0 [] typeArgumentsP
+  return $ t ++ n ++ o
+--
+
+atomicExpressionP :: Parser String
+atomicExpressionP = bracketedE
+  <|> literalConstantP
+  <|> functionLiteralP
+  <|> thisLabelE
+  <|> superLabelE
+--  <|> ifP
+  <|> whenP
+  <|> tryP
+--  <|> objectLiteralP
+  <|> jumpP
+--  <|> loopP
+  <|> simpleNameP
+  where
+    bracketedE = do
+      e <- bracketsP expressionP
+      return $ '(' : e ++ ")"
+    thisLabelE = do
+      reservedLP "this"
+      l <- option0 [] labelReferenceP
+      return $ "this" ++ l
+    superLabelE = do
+      reservedLP "super"
+      s <- option0 [] $ do
+        reservedLP "<"
+        t <- typeP
+        reservedLP ">"
+        return $ "/* WARNING: refering to a specific super type "
+          ++ t ++ " is not supported */"
+      l <- option0 [] labelReferenceP
+      return $ "super" ++ s ++ l
+--

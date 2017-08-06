@@ -65,11 +65,13 @@ functionParameterP = do
 
 -- | Here's another issue
 --   There is a duplicate `charP '@'` in the doc
+--   converted into warnings
 labelReferenceP :: Parser String
 labelReferenceP = labelNameP
 
 -- | Here's another another issue
 --   There is a duplicate `charP '@'` in the doc
+--   converted into warnings, too
 labelDefinitionP :: Parser String
 labelDefinitionP = labelNameSP
 

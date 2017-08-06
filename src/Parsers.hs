@@ -226,6 +226,9 @@ fromRight :: b -> Either a b -> b
 fromRight r (Left  _) = r
 fromRight _ (Right r) = r
 
+optionalPrefix :: String -> String
+optionalPrefix [] = []
+optionalPrefix ls = ls ++ " "
 
 (\|/) = flip seperateP
 (=>>) = convertReservedP
