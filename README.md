@@ -63,6 +63,10 @@ R run<T,R>(Function/* (T) -> R */ block){}
 "boy next door with an expression ${expr} and a var $variable"
 *Strings> stringTemplateP <||| "\"we also have escape vars: \\n \\r \\t\""
 "we also have escape vars: \n \r \t"
+*Strings> :l Statements
+...
+*Statements> whenP <||| "when(expr){expr->{};expr,is A->{}; else->{};}"
+if(expr){}else if(expr||expr is A){}else{}
 ```
 
 # Why Haskell

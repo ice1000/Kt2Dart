@@ -100,6 +100,20 @@ option0 d p = p <|> return d
 chainl :: Parser a -> Parser (a -> a -> a) -> a -> Parser a
 chainl p op = (chainl1 p op <|>) . return
 
+chainr :: Parser a -> Parser (a -> a -> a) -> a -> Parser a
+chainr p op = (chainr1 p op <|>) . return
+
+-- | something similar to chainl1
+kotlinChainl1 :: Parser String -> Parser String -> Parser String
+kotlinChainl1 ep op = do
+  e <- ep
+  m <- many $ do
+    o <- op
+    e <- ep
+    return $ o ++ e
+  return $ e ++ join m
+--
+
 convertStringP :: String -> a -> Parser a
 convertStringP = convertParserP . stringP
 

@@ -52,7 +52,9 @@ whenP = do
   reservedLP "}"
   return . join $ case w of
     [     ] -> []
-    (h : t) -> h : [ "else " ++ e | e <- t ]
+    (h : t) -> h : [ "else" ++ g e | e <- t ]
+  where g e@('i' : _) = ' ' : e
+        g e           = e
 --
 
 -- | s is expected to be not empty
@@ -91,13 +93,13 @@ whenConditionP :: String -> Parser String
 whenConditionP s = in' <|> is' <|> expressionP
   where
     in' = do
-      r <- reservedLP "in" <|> reservedLP "!in"
+      r <- inOperationP
       e <- expressionP
       return $ if head r == '!'
         then '!' : e ++ ".contains(" ++ s ++ ")"
         else e ++ ".contains(" ++ s ++ ")"
     is' = do
-      r <- reservedLP "is" <|> reservedLP "!is"
+      r <- isOperationP
       t <- typeP
       return $ if head r == '!'
         then "!(" ++ s ++ " is " ++ t ++ ")"

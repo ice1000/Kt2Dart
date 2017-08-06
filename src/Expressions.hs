@@ -127,3 +127,54 @@ constructorInvocationP = do
   s <- callSuffixP
   return $ t ++ s
 --
+
+postfixUnaryExpressionP :: Parser String
+postfixUnaryExpressionP = do
+  e <- atomicExpressionP <|> callableReferenceP
+  p <- many postfixUnaryOperationP
+  return $ e ++ join p
+--
+
+prefixUnaryExpressionP :: Parser String
+prefixUnaryExpressionP = do
+  m <- many prefixUnaryOperationP
+  p <- postfixUnaryExpressionP
+  return $ join m ++ p
+--
+
+typeRhsP :: Parser String
+typeRhsP = do
+  e <- prefixUnaryExpressionP
+  m <- many $ do
+    t <- typeOperationP
+    e <- prefixUnaryExpressionP
+    return $ t ++ e
+  return $ e ++ join m
+--
+
+multiplicativeExpressionP :: Parser String
+multiplicativeExpressionP = do
+  e <- typeRhsP
+  m <- many $ do
+    o <- multiplicativeOperationP
+    e <- typeRhsP
+    return $ o ++ e
+  return $ e ++ join m
+--
+
+additiveExpressionP :: Parser String
+additiveExpressionP = do
+  e <- multiplicativeExpressionP
+  m <- many $ do
+    o <- additiveOperationP
+    e <- multiplicativeExpressionP
+    return $ o ++ e
+  return $ e ++ join m
+--
+
+rangeExpressionP :: Parser String
+rangeExpressionP = undefined
+
+callableReferenceP :: Parser String
+callableReferenceP = do
+  

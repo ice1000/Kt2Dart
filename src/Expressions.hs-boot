@@ -20,3 +20,9 @@ postfixUnaryOperationP :: Parser String
 memberAccessOperationP :: Parser String
 arrayAccessP :: Parser String
 constructorInvocationP :: Parser String
+postfixUnaryExpressionP :: Parser String
+prefixUnaryExpressionP :: Parser String
+typeRhsP :: Parser String
+multiplicativeExpressionP :: Parser String
+additiveExpressionP :: Parser String
+rangeExpressionP :: Parser String
