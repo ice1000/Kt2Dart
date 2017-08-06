@@ -48,21 +48,58 @@ whenP = do
   reservedLP "when"
   c <- option0 [] $ bracketsP expressionP
   reservedLP "{"
-  w <- many whenEntryP
+  w <- many $ whenEntryP c
   reservedLP "}"
+  return . join $ case w of
+    [     ] -> []
+    (h : t) -> h : [ "else " ++ e | e <- t ]
 --
 
-whenEntryP :: Parser String
-whenEntryP = a <|> b
+-- | s is expected to be not empty
+whenEntryP :: String -> Parser String
+whenEntryP s = a <|> b
   where
+    -- a = do
+    --   wc <- "," ->> ":case " \|/ whenConditionP s
+    --   reservedLP "->"
+    --   cs <- controlStructureBodyP
+    --   semiP
+    --   return $ "case " ++ join wc ++ ":" ++ cs ++ ";break;"
     a = do
-      wc <- "," ->> ":case " \|/ whenConditionP
+      wc <- "," ->> "||" \|/ whenConditionP s
       reservedLP "->"
       cs <- controlStructureBodyP
       semiP
-      return $ "case " ++ join wc ++ ":" ++ cs
-    b = reservedLP []
+      return $ "if(" ++ join wc ++ ")" ++ cs
+    -- b = do
+    --   reservedLP "else"
+    --   reservedLP "->"
+    --   cs <- controlStructureBodyP
+    --   semiP
+    --   return $ "default:" ++ cs ++ ";break;"
+    b = do
+      reservedLP "else"
+      reservedLP "->"
+      cs <- controlStructureBodyP
+      semiP
+      -- becase the `else` keyword will be added by `whenP`
+      return cs
 --
 
-whenConditionP :: Parser String
-whenConditionP = undefined
+-- | s is expected to be not empty
+whenConditionP :: String -> Parser String
+whenConditionP s = in' <|> is' <|> expressionP
+  where
+    in' = do
+      r <- reservedLP "in" <|> reservedLP "!in"
+      e <- expressionP
+      return $ if head r == '!'
+        then '!' : e ++ ".contains(" ++ s ++ ")"
+        else e ++ ".contains(" ++ s ++ ")"
+    is' = do
+      r <- reservedLP "is" <|> reservedLP "!is"
+      t <- typeP
+      return $ if head r == '!'
+        then "!(" ++ s ++ " is " ++ t ++ ")"
+        else s ++ " is " ++ t
+--

@@ -98,7 +98,16 @@ simpleUserTypeP = tokenLP $ do
       typeP
     reservedLP ">"
     return $ '<' : join ls ++ ">"
-  return $ n ++ p
+  return $ mapped n ++ p
+  where
+    mapped "Unit"    = "void"
+    mapped "Int"     = "int"
+    mapped "Boolean" = "bool"
+    mapped "Double"  = "double"
+    mapped "Float"   = "float"
+    mapped "Long"    = "long"
+    mapped "Array"   = "List"
+    mapped others    = others
 --
 
 -- | Here's an issue

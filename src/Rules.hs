@@ -102,6 +102,4 @@ multipleVariableDeclarations = do
 --
 
 controlStructureBodyP :: Parser String
-controlStructureBodyP = do
-  undefined
---
+controlStructureBodyP = blockP <|> blockLevelExpressionP

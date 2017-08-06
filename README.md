@@ -2,9 +2,23 @@
 
 [![Build status](https://ci.appveyor.com/api/projects/status/38gy6t4offcp39jb?svg=true)](https://ci.appveyor.com/project/ice1000/kt2dart)
 
-This is a transpiler which consumes Kotlin codes and convert them into Dart.
+This is a transpiler which consumes [Kotlin](https://kotlinlang.org) codes and convert them into [Dart](https://www.dartlang.org/).
 
 Currently it's completely in progress. But it can do some simple jobs right now.
+
+# Why Kt2Dart
+
+Because I want to **Make [Flutter](https://flutter.io) Great Again**.
+
+Flutter, written in Dart, is an awesome mobile developing framework. But Dart is **too** weak, for the dynamic typing and null-unsafety.
+
+Kotlin is much more powerful.
+If we can combine the **beautiful** flutter and the **powerful/safe** Kotlin, our world will be peaceful forever.
+
+Also, since your dart codes are transpiled from Kotlin, you can use [Sound Dart](https://www.dartlang.org/guides/language/sound-dart)
+(the term `Strong Dart` refers to the same thing) compiler to compile the generated Dart codes.
+
+You may find it better to use Kotlin's JavaScript mode (to enable the use of the `dynamic` type).
 
 ## Limitations
 
@@ -30,22 +44,6 @@ Such (advanced) language features of Kotlin are too complex to transpile
 
 And this tool will raise warnings as comments when these stuffs are detected.
 
-# Why Kt2Dart
-
-Because I want to **Make [Flutter](https://flutter.io) Great Again**.
-
-Flutter, written in Dart, is an awesome mobile developing framework. But Dart is **too** weak, for the dynamic typing and null-unsafety.
-
-Kotlin is much more powerful.
-If we can combine the **beautiful** flutter and the **powerful/safe** Kotlin, our world will be peaceful forever.
-
-# Why Haskell
-
-Yeah, as you see, I'm using Haskell in this project.
-Because ~~Parser Combinators are easy and convenient~~ I want to practise my Haskell skills.
-
-I'm a beginner to Haskell, so if you find any naive code, feel free to tell me (by issuing or mailing) (I'm using hlint).
-
 # Have a Try
 
 You simply need a ghc to play with this.
@@ -66,3 +64,10 @@ R run<T,R>(Function/* (T) -> R */ block){}
 *Strings> stringTemplateP <||| "\"we also have escape vars: \\n \\r \\t\""
 "we also have escape vars: \n \r \t"
 ```
+
+# Why Haskell
+
+Yeah, as you see, I'm using Haskell in this project.
+Because ~~Parser Combinators are easy and convenient~~ I want to practise my Haskell skills.
+
+I'm a beginner to Haskell, so if you find any naive code, feel free to tell me (by issuing or mailing) (I'm using hlint).
