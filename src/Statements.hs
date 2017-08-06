@@ -137,3 +137,13 @@ finallyBlockP = do
   b <- blockP
   return $ "finally{" ++ b ++ "}"
 --
+
+whileP :: Parser String
+whileP = do
+  reservedLP "while"
+  reservedLP "("
+  e <- expressionP
+  reservedLP ")"
+  b <- controlStructureBodyP
+  return $ "while(" ++ e ++ ")" ++ b
+--

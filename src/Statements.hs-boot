@@ -11,3 +11,4 @@ whenConditionP :: String -> Parser String
 tryP :: Parser String
 catchBlockP :: Parser String
 finallyBlockP :: Parser String
+whileP :: Parser String
