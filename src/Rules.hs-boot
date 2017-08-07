@@ -11,5 +11,5 @@ labelReferenceP :: Parser String
 labelDefinitionP :: Parser String
 lambdaParameterP :: Parser String
 controlStructureBodyP :: Parser String
-multipleVariableDeclarations :: Parser String
-variableDeclarationEntry :: Parser String
+multipleVariableDeclarationsP :: Parser String
+variableDeclarationEntryP :: Parser String

@@ -87,17 +87,17 @@ theTypedP s = do
 --
 
 lambdaParameterP :: Parser String
-lambdaParameterP = tokenLP $ variableDeclarationEntry
-  <|> theTypedP multipleVariableDeclarations
+lambdaParameterP = tokenLP $ variableDeclarationEntryP
+  <|> theTypedP multipleVariableDeclarationsP
 --
 
-variableDeclarationEntry :: Parser String
-variableDeclarationEntry = theTypedP simpleNameP
+variableDeclarationEntryP :: Parser String
+variableDeclarationEntryP = theTypedP simpleNameP
 
-multipleVariableDeclarations :: Parser String
-multipleVariableDeclarations = do
+multipleVariableDeclarationsP :: Parser String
+multipleVariableDeclarationsP = do
   reservedLP "("
-  l <- reservedLP "," \|/ variableDeclarationEntry
+  l <- reservedLP "," \|/ variableDeclarationEntryP
   reservedLP ")"
   return $ "/* WARNING: destructing declaration "
     ++ join l ++ " is not supported */"

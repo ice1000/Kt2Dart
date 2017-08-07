@@ -166,4 +166,14 @@ doWhileP = do
 --
 
 forP :: Parser String
-forP = undefined
+forP = do
+  reservedLP "for"
+  reservedLP "("
+  a <- annotationsP
+  v <- multipleVariableDeclarationsP <|> variableDeclarationEntryP
+  reservedLP "in"
+  e <- expressionP
+  reservedLP ")"
+  b <- constructorInvocationP
+  return $ "/* for in loop */"
+--

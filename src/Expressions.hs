@@ -15,7 +15,27 @@ import {-# SOURCE #-} Strings
 import {-# SOURCE #-} Functions
 
 expressionP :: Parser String
-expressionP = reservedLP "expr"
+expressionP = do
+  d <- disjunctionP
+  e <- many $ do
+    o <- assignmentOperatorP
+    d <- disjunctionP
+    return $ o ++ d
+  return $ d ++ join e
+--
+
+disjunctionP :: Parser String
+disjunctionP = do
+  c <- conjunctionP
+  e <- many $ do
+    reservedLP "||"
+    c <- conjunctionP
+    return $ "||" ++ c
+  return $ c ++ join e
+--
+
+conjunctionP :: Parser String
+conjunctionP = undefined
 
 blockLevelExpressionP :: Parser String
 blockLevelExpressionP = do
