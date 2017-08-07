@@ -12,3 +12,6 @@ tryP :: Parser String
 catchBlockP :: Parser String
 finallyBlockP :: Parser String
 whileP :: Parser String
+doWhileP :: Parser String
+loopP :: Parser String
+forP :: Parser String

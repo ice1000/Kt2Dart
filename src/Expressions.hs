@@ -203,7 +203,7 @@ atomicExpressionP = bracketedE
   <|> tryP
 --  <|> objectLiteralP
   <|> jumpP
---  <|> loopP
+  <|> loopP
   <|> simpleNameP
   where
     bracketedE = do

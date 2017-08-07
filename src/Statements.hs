@@ -140,6 +140,9 @@ finallyBlockP = do
   return $ "finally{" ++ b ++ "}"
 --
 
+loopP :: Parser String
+loopP = whileP <|> doWhileP <|> forP
+
 whileP :: Parser String
 whileP = do
   reservedLP "while"
@@ -149,3 +152,18 @@ whileP = do
   b <- controlStructureBodyP
   return $ "while(" ++ e ++ ")" ++ b
 --
+
+-- | seems that there should be an extra semicon
+doWhileP :: Parser String
+doWhileP = do
+  reservedLP "do"
+  b <- controlStructureBodyP
+  reservedLP "while"
+  reservedLP "("
+  e <- expressionP
+  reservedLP ")"
+  return $ "do" ++ b ++ "while(" ++ e ++ ");"
+--
+
+forP :: Parser String
+forP = undefined
