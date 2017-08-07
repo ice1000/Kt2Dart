@@ -5,6 +5,8 @@ module Annotations where
 import Control.Applicative
 import Control.Monad
 
+import Data.Char
+
 import Parsers
 import LexicalStructure
 import {-# SOURCE #-} Types
@@ -16,6 +18,8 @@ annotationsP = do
   return $ join s
 --
 
+-- | convert "Override" into "override"
+--   "Deprecated" into "deprecated"
 annotationP :: Parser String
 annotationP = do
   reservedLP "@"
@@ -24,7 +28,9 @@ annotationP = do
     reservedLP ":"
     return $ a ++ ":"
   u <- unescapedAnnotationP
-  return $ '@' : s ++ u
+  return $ '@' : s ++ mapped u
+  where mapped [     ] = []
+        mapped (h : t) = toLower h : t
 --
 
 annotationListP :: Parser String

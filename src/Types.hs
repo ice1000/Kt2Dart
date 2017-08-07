@@ -23,7 +23,7 @@ typeReferenceP = tokenLP $ do
   a <- o
   r <- option0 [] $ reservedLP "?"
   return a
-  where o = reservedP "dynamic"
+  where o = reservedLP "dynamic"
           <|> functionTypeP
           <|> userTypeP
           -- <|> nullableTypeP
@@ -69,11 +69,11 @@ typeParameterP = do
 typeAliasP :: Parser String
 typeAliasP = do
   m <- modifiersP
-  reservedP "typealias"
+  reservedLP "typealias"
   n <- simpleNameP
-  spaces0P
+  newLines0P
   p <- option0 [] typeParametersP
-  reservedP "="
+  reservedLP "="
   t <- typeP
   return $ m ++ " class " ++ n ++ p ++ " extends " ++ t
 --
@@ -98,26 +98,18 @@ simpleUserTypeP = tokenLP $ do
       typeP
     reservedLP ">"
     return $ '<' : join ls ++ ">"
-  return $ mapped n ++ p
-  where
-    mapped "Unit"    = "void"
-    mapped "Int"     = "int"
-    mapped "Boolean" = "bool"
-    mapped "Double"  = "double"
-    mapped "Float"   = "float"
-    mapped "Long"    = "long"
-    mapped "Array"   = "List"
-    mapped others    = others
+  return $ functionNamesMapping n ++ p
 --
 
 -- | Here's an issue
 --   The `simple name` is `paramter` in the doc
 functionTypeP :: Parser String
 functionTypeP = do
-  b <- bracketsP $ option0 [] $ reservedLP "," \|/ tokenLP simpleNameP
+  b <- bracketsP $ option0 [] $ reservedLP "," \|/ tokenLP typeP -- simpleNameP
   reservedLP "->"
   c <- typeP
-  return $ "Function" ++ "/* (" ++ join b ++ ") -> " ++ c ++ " */"
+  return $ "Function" ++ "/* ("
+    ++ join (functionNamesMapping <$> b) ++ ") -> " ++ c ++ " */"
 --
 
 typeConstraintsP :: Parser String
@@ -133,4 +125,17 @@ typeConstraintP = do
   n <- simpleNameP
   u <- option0 [] userTypeP
   return $ m ++ n ++ u
+--
+
+functionNamesMapping :: String -> String
+functionNamesMapping = mapped
+  where
+    mapped "Unit"    = "void"
+    mapped "Int"     = "int"
+    mapped "Boolean" = "bool"
+    mapped "Double"  = "double"
+    mapped "Float"   = "float"
+    mapped "Long"    = "long"
+    mapped "Array"   = "List"
+    mapped others    = others
 --

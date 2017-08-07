@@ -69,10 +69,9 @@ whenEntryP s = a <|> b
     --   return $ "case " ++ join wc ++ ":" ++ cs ++ ";break;"
     a = do
       wc <- "," ->> "||" \|/ whenConditionP s
-      reservedLP "->"
-      cs <- controlStructureBodyP
-      semiP
+      cs <- getCS
       return $ "if(" ++ join wc ++ ")" ++ cs
+
     -- b = do
     --   reservedLP "else"
     --   reservedLP "->"
@@ -81,10 +80,13 @@ whenEntryP s = a <|> b
     --   return $ "default:" ++ cs ++ ";break;"
     b = do
       reservedLP "else"
+      cs <- getCS
+      -- becase the `else` keyword will be added by `whenP`
+      return cs
+    getCS = do
       reservedLP "->"
       cs <- controlStructureBodyP
       semiP
-      -- becase the `else` keyword will be added by `whenP`
       return cs
 --
 

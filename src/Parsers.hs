@@ -230,10 +230,13 @@ optionalPrefix :: String -> String
 optionalPrefix [] = []
 optionalPrefix ls = ls ++ " "
 
+-- | useful aliases
 (\|/) = flip seperateP
 (=>>) = convertReservedP
 (->>) = convertReservedLP
 (<||) = parseCode
+
+(<|||) :: Parser String -> String -> IO ()
 (<|||) a = putStrLn . fromRight "Parse Error" . parseCode a
 
 digitP :: Parser Char
