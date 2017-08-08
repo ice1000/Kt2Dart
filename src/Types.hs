@@ -98,7 +98,7 @@ simpleUserTypeP = tokenLP $ do
       typeP
     reservedLP ">"
     return $ '<' : join ls ++ ">"
-  return $ functionNamesMapping n ++ p
+  return $ typeNamesMapping n ++ p
 --
 
 -- | Here's an issue
@@ -109,7 +109,7 @@ functionTypeP = do
   reservedLP "->"
   c <- typeP
   return $ "Function" ++ "/* ("
-    ++ join (functionNamesMapping <$> b) ++ ") -> " ++ c ++ " */"
+    ++ join (typeNamesMapping <$> b) ++ ") -> " ++ c ++ " */"
 --
 
 typeConstraintsP :: Parser String
@@ -127,8 +127,8 @@ typeConstraintP = do
   return $ m ++ n ++ u
 --
 
-functionNamesMapping :: String -> String
-functionNamesMapping = mapped
+typeNamesMapping :: String -> String
+typeNamesMapping = mapped
   where
     mapped "Unit"    = "void"
     mapped "Int"     = "int"

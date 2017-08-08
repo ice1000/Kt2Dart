@@ -25,7 +25,7 @@ blockLevelExpressionP = do
 --
 
 multiplicativeOperationP :: Parser String
-multiplicativeOperationP = reservedWordsLP [ "*", "/", "%" ]
+multiplicativeOperationP = reservedWordsLP [ "*", "%" ] <|> "/" ->> "~/"
 
 additiveOperationP :: Parser String
 additiveOperationP = reservedWordsLP [ "+", "-" ]
@@ -180,7 +180,7 @@ infixFunctionCallP :: Parser String
 infixFunctionCallP = tokenLP $ rangeExpressionP ~> do
   newLines0P
   n <- simpleNameP
-  return $ \l r -> l ++ "." ++ n ++ "(" ++ r ++ ")"
+  return $ functionNamesMapping n
 --
 
 -- | I'm not sure how to express this in Dart
@@ -241,3 +241,12 @@ atomicExpressionP = tokenLP $ bracketedE
       l <- option0 [] labelReferenceP
       return $ "super" ++ s ++ l
 --
+
+functionNamesMapping :: String -> String -> String -> String
+functionNamesMapping "shl" a b = '(' : a ++ "<<" ++ b ++ ")"
+functionNamesMapping "shr" a b = '(' : a ++ ">>" ++ b ++ ")"
+functionNamesMapping "and" a b = '(' : a ++ "&"  ++ b ++ ")"
+functionNamesMapping "or"  a b = '(' : a ++ "|"  ++ b ++ ")"
+functionNamesMapping "xor" a b = '(' : a ++ "^"  ++ b ++ ")"
+functionNamesMapping "div" a b = '(' : a ++ "/"  ++ b ++ ")"
+functionNamesMapping other a b = a ++ "." ++ other ++ "(" ++ b ++ ")"
