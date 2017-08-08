@@ -15,27 +15,7 @@ import {-# SOURCE #-} Strings
 import {-# SOURCE #-} Functions
 
 expressionP :: Parser String
-expressionP = do
-  d <- disjunctionP
-  e <- many $ do
-    o <- assignmentOperatorP
-    d <- disjunctionP
-    return $ o ++ d
-  return $ d ++ join e
---
-
-disjunctionP :: Parser String
-disjunctionP = do
-  c <- conjunctionP
-  e <- many $ do
-    reservedLP "||"
-    c <- conjunctionP
-    return $ "||" ++ c
-  return $ c ++ join e
---
-
-conjunctionP :: Parser String
-conjunctionP = undefined
+expressionP = disjunctionP <=> assignmentOperatorP
 
 blockLevelExpressionP :: Parser String
 blockLevelExpressionP = do
@@ -60,7 +40,10 @@ isOperationP :: Parser String
 isOperationP = reservedWordsLP [ "is", "!is" ]
 
 comparisionOperationP :: Parser String
-comparisionOperationP = reservedWordsLP [ "!=", "==" ]
+comparisionOperationP = reservedWordsLP [ ">=", "<=", "<", ">" ]
+
+equalityOperationP :: Parser String
+equalityOperationP = reservedWordsLP [ "!=", "==" ]
 
 assignmentOperatorP :: Parser String
 assignmentOperatorP = reservedWordsLP ops
@@ -82,6 +65,7 @@ prefixUnaryOperationP = reservedWordsLP ops
 
 postfixUnaryOperationP :: Parser String
 postfixUnaryOperationP = reservedWordsLP ops
+  <|> "!!" ->> ""
   <|> callSuffixP
   <|> arrayAccessP
   <|> do
@@ -89,7 +73,7 @@ postfixUnaryOperationP = reservedWordsLP ops
   p <- postfixUnaryOperationP
   return $ m ++ p
   where
-    ops = [ "++", "--", "!!" ]
+    ops = [ "++", "--" ]
 --
 
 callSuffixP :: Parser String
@@ -117,7 +101,7 @@ annotatedLambdaP = do
 --
 
 memberAccessOperationP :: Parser String
-memberAccessOperationP = reservedWordsLP [ ".", "?.", "?" ]
+memberAccessOperationP = reservedWordsLP [ ".", "?." ] <|> "?" ->> ""
 
 literalConstantP :: Parser String
 literalConstantP = reservedWordsLP [ "true", "false", "null" ]
@@ -159,35 +143,53 @@ prefixUnaryExpressionP = do
 --
 
 typeRhsP :: Parser String
-typeRhsP = do
-  e <- prefixUnaryExpressionP
-  m <- many $ do
-    t <- typeOperationP
-    e <- prefixUnaryExpressionP
-    return $ t ++ e
-  return $ e ++ join m
---
+typeRhsP = prefixUnaryExpressionP <=> typeOperationP
 
 multiplicativeExpressionP :: Parser String
-multiplicativeExpressionP = do
-  e <- typeRhsP
-  m <- many $ do
-    o <- multiplicativeOperationP
-    e <- typeRhsP
-    return $ o ++ e
-  return $ e ++ join m
---
+multiplicativeExpressionP = typeRhsP <=> multiplicativeOperationP
 
 additiveExpressionP :: Parser String
-additiveExpressionP = do
-  e <- multiplicativeExpressionP
-  m <- many $ do
-    o <- additiveOperationP
-    e <- multiplicativeExpressionP
-    return $ o ++ e
-  return $ e ++ join m
+additiveExpressionP = multiplicativeExpressionP <=> additiveOperationP
+
+disjunctionP :: Parser String
+disjunctionP = conjunctionP </> reservedLP "||"
+
+conjunctionP :: Parser String
+conjunctionP = equalityComparisionP </> reservedLP "&&"
+
+equalityComparisionP :: Parser String
+equalityComparisionP = comparisionP <=> equalityOperationP
+
+comparisionP :: Parser String
+comparisionP = namedInfix <=> comparisionOperationP
+
+namedInfix :: Parser String
+namedInfix = a <|> b
+  where
+    a = do
+      e <- elvisExpressionP
+      m <- option0 [] $ do
+        i <- isOperationP
+        t <- typeP
+        return $ i ++ " " ++ t
+      return $ if head m == '!'
+        then e ++ " " ++ tail m
+        else e ++ " " ++ m
+    b = elvisExpressionP ~> do
+      inOperationP
+      return $ \l r -> r ++ ".contains(" ++ l ++ ")"
 --
 
+elvisExpressionP :: Parser String
+elvisExpressionP = infixFunctionCallP </> "?:" ->> "??"
+
+infixFunctionCallP :: Parser String
+infixFunctionCallP = rangeExpressionP ~> do
+  n <- simpleNameP
+  return $ \l r -> l ++ "." ++ n ++ "(" ++ r ++ ")"
+--
+
+-- | I'm not sure how to express this in Dart
 rangeExpressionP :: Parser String
 rangeExpressionP = do
   e <- additiveExpressionP

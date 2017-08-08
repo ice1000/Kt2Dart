@@ -103,15 +103,32 @@ chainl p op = (chainl1 p op <|>) . return
 chainr :: Parser a -> Parser (a -> a -> a) -> a -> Parser a
 chainr p op = (chainr1 p op <|>) . return
 
+bracketsHelper :: String -> [String] -> String
+bracketsHelper c e
+  | e  /=  [] = '(' : c ++ join e ++ ")"
+  | otherwise = c ++ join e
+--
+
 -- | something similar to chainl1
-kotlinChainl1 :: Parser String -> Parser String -> Parser String
-kotlinChainl1 ep op = do
+chainlConnect :: Parser String -> Parser String -> Parser String
+chainlConnect ep op = do
   e <- ep
   m <- many $ do
     o <- op
     e <- ep
     return $ o ++ e
   return $ e ++ join m
+--
+
+-- | something similar to chainl1
+chainlWithBrackets :: Parser String -> Parser String -> Parser String
+chainlWithBrackets ep op = do
+  e <- ep
+  m <- many $ do
+    o <- op
+    e <- ep
+    return $ o ++ e
+  return $ bracketsHelper e m
 --
 
 convertStringP :: String -> a -> Parser a
@@ -222,6 +239,7 @@ seperateP ns ss = do
     return $ n : s : r
 --
 
+-- | fuck ghc 8.0.1
 fromRight :: b -> Either a b -> b
 fromRight r (Left  _) = r
 fromRight _ (Right r) = r
@@ -235,6 +253,9 @@ optionalPrefix ls = ls ++ " "
 (=>>) = convertReservedP
 (->>) = convertReservedLP
 (<||) = parseCode
+(~>)  = chainl1
+(<=>) = chainlConnect
+(</>) = chainlWithBrackets
 
 (<|||) :: Parser String -> String -> IO ()
 (<|||) a = putStrLn . fromRight "Parse Error" . parseCode a
@@ -243,3 +264,7 @@ digitP :: Parser Char
 digitP = satisfy isDigit
 
 infixl 2 \|/
+infixl 8 </>
+infixl 8 <=>
+infixl 8 ~>
+infixl 9 ->>
