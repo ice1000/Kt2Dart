@@ -8,6 +8,7 @@ import System.IO
 
 import Parsers
 import {-# SOURCE #-} Functions
+import {-# SOURCE #-} Types
 
 main :: IO ()
 main = do
@@ -17,10 +18,10 @@ main = do
   putStrLn "File contents:"
   putStrLn allCodes
   putStrLn $ case p <|| allCodes of
-    (Left  o) -> "Error:\n" ++ o
+    (Left  o) -> o
     (Right o) -> o
   where p = do
-          f <- functionP
+          f <- functionP <~> typeP
           newLines0P
           return f
 --
