@@ -25,7 +25,7 @@ blockLevelExpressionP = do
 --
 
 multiplicativeOperationP :: Parser String
-multiplicativeOperationP = reservedWordsLP [ "+", "/", "%" ]
+multiplicativeOperationP = reservedWordsLP [ "*", "/", "%" ]
 
 additiveOperationP :: Parser String
 additiveOperationP = reservedWordsLP [ "+", "-" ]
@@ -37,7 +37,7 @@ typeOperationP :: Parser String
 typeOperationP = reservedWordsLP [ "as", "as?", ":" ]
 
 isOperationP :: Parser String
-isOperationP = reservedWordsLP [ "is", "!is" ]
+isOperationP = reservedLP "is" <|> "!is" ->> "is!"
 
 comparisionOperationP :: Parser String
 comparisionOperationP = reservedWordsLP [ ">=", "<=", "<", ">" ]
@@ -143,48 +143,52 @@ prefixUnaryExpressionP = do
 --
 
 typeRhsP :: Parser String
-typeRhsP = prefixUnaryExpressionP <=> typeOperationP
+typeRhsP = tokenLP $ prefixUnaryExpressionP <=> typeOperationP
 
 multiplicativeExpressionP :: Parser String
-multiplicativeExpressionP = typeRhsP <=> multiplicativeOperationP
+multiplicativeExpressionP = tokenLP $ typeRhsP <=> multiplicativeOperationP
 
 additiveExpressionP :: Parser String
-additiveExpressionP = multiplicativeExpressionP <=> additiveOperationP
+additiveExpressionP = tokenLP $ multiplicativeExpressionP <=> additiveOperationP
 
 disjunctionP :: Parser String
-disjunctionP = conjunctionP </> reservedLP "||"
+disjunctionP = tokenLP $ conjunctionP </> reservedLP "||"
 
 conjunctionP :: Parser String
-conjunctionP = equalityComparisionP </> reservedLP "&&"
+conjunctionP = tokenLP $ equalityComparisionP </> reservedLP "&&"
 
 equalityComparisionP :: Parser String
-equalityComparisionP = comparisionP <=> equalityOperationP
+equalityComparisionP = tokenLP $ comparisionP <=> equalityOperationP
 
 comparisionP :: Parser String
-comparisionP = namedInfix <=> comparisionOperationP
+comparisionP = tokenLP $ namedInfix <=> comparisionOperationP
 
 namedInfix :: Parser String
-namedInfix = a <|> b
+namedInfix = b <|> a
   where
+    -- b = elvisExpressionP ~> do
+    --   inOperationP
+    --   return $ \l r -> r ++ ".contains(" ++ l ++ ")"
+    b = elvisExpressionP ~> do
+      (i : _) <- inOperationP
+      return $ if i == '!'
+        then \l r -> '!' : r ++ ".contains(" ++ l ++ ")"
+        else \l r -> r ++ ".contains(" ++ l ++ ")"
+
     a = do
       e <- elvisExpressionP
-      m <- option0 [] $ do
+      m <- reservedP [] <~> do
         i <- isOperationP
         t <- typeP
-        return $ i ++ " " ++ t
-      return $ if head m == '!'
-        then e ++ " " ++ tail m
-        else e ++ " " ++ m
-    b = elvisExpressionP ~> do
-      inOperationP
-      return $ \l r -> r ++ ".contains(" ++ l ++ ")"
+        return $ i ++ optionalSuffix t
+      return . bracketsHelper_ e $ optionalSuffix m
 --
 
 elvisExpressionP :: Parser String
-elvisExpressionP = infixFunctionCallP </> "?:" ->> "??"
+elvisExpressionP = tokenLP $ infixFunctionCallP </> "?:" ->> "??"
 
 infixFunctionCallP :: Parser String
-infixFunctionCallP = rangeExpressionP ~> do
+infixFunctionCallP = tokenLP $ rangeExpressionP ~> do
   n <- simpleNameP
   return $ \l r -> l ++ "." ++ n ++ "(" ++ r ++ ")"
 --
@@ -215,7 +219,7 @@ callableReferenceP = do
 --
 
 atomicExpressionP :: Parser String
-atomicExpressionP = bracketedE
+atomicExpressionP = tokenLP $ bracketedE
   <|> literalConstantP
   <|> functionLiteralP
   <|> thisLabelE

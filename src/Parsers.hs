@@ -109,6 +109,12 @@ bracketsHelper c e
   | otherwise = c ++ join e
 --
 
+bracketsHelper_ :: String -> String -> String
+bracketsHelper_ c e
+  | e  /=  [] = '(' : c ++ e ++ ")"
+  | otherwise = c ++ e
+--
+
 -- | something similar to chainl1
 chainlConnect :: Parser String -> Parser String -> Parser String
 chainlConnect ep op = do
@@ -247,6 +253,10 @@ fromRight _ (Right r) = r
 optionalPrefix :: String -> String
 optionalPrefix [] = []
 optionalPrefix ls = ls ++ " "
+
+optionalSuffix :: String -> String
+optionalSuffix [] = []
+optionalSuffix ls = ' ' : ls
 
 -- | useful aliases
 (\|/) = flip seperateP
