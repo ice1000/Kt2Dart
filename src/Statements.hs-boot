@@ -16,3 +16,4 @@ whileHeaderP :: Parser String
 doWhileP :: Parser String
 loopP :: Parser String
 forP :: Parser String
+ifP :: Parser String

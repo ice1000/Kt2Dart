@@ -215,7 +215,7 @@ atomicExpressionP = tokenLP $ bracketedE
   <|> functionLiteralP
   <|> thisLabelE
   <|> superLabelE
---  <|> ifP
+  <|> ifP
   <|> whenP
   <|> tryP
 --  <|> objectLiteralP

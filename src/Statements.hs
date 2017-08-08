@@ -179,3 +179,15 @@ forP = do
   b <- constructorInvocationP
   return "/* for in loop */"
 --
+
+ifP :: Parser String
+ifP = do
+  reservedLP "if"
+  reservedLP "("
+  e <- expressionP
+  reservedLP ")"
+  b <- controlStructureBodyP
+  option0 [] semiSP
+  o <- option0 [] $ reservedLP "else" <++> controlStructureBodyP
+  return $ "if(" ++ e ++ ")" ++ b ++ o
+--  

@@ -93,6 +93,13 @@ semiP = do
   return ';'
 --
 
+semiSP :: Parser String
+semiSP = do
+  charP ';' <|> charP '\n'
+  spaces0P
+  return ";"
+--
+
 javaIdentifierP :: Parser String
 javaIdentifierP = iOrElse <~> do
   c <- oneOf $ "_$" ++ [ e | e <- alpha, e /= 'i' ]
