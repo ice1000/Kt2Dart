@@ -94,10 +94,15 @@ semiP = do
 --
 
 javaIdentifierP :: Parser String
-javaIdentifierP = do
-  c <- oneOf $ "_$" ++ alpha
+javaIdentifierP = iOrElse <~> do
+  c <- oneOf $ "_$" ++ [ e | e <- alpha, e /= 'i' ]
   r <- many $ oneOf $ "_$" ++ alpha ++ digit
   return $ c : r
+  where iOrElse = do
+          charP 'i'
+          s <- noneOf "sn"
+          r <- many $ oneOf $ "_$" ++ alpha ++ digit
+          return $ 'i' : s : r
 --
 
 simpleNameP :: Parser String

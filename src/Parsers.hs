@@ -15,7 +15,7 @@ import Control.Applicative
 newtype Parser a = Parser { parse :: String -> [(a, String)]  }
 
 parseCode :: Parser a -> String -> Either String a
-parseCode m s = case parse m s of
+parseCode m s = case m <!-- s of
   [(res, [])] -> Right res
   _           -> Left "Hugh?"
 --
@@ -32,7 +32,7 @@ instance Applicative Parser where
 
 instance Monad Parser where
   return a = Parser $ \s -> [(a, s)]
-  p >>= f  = Parser $ concatMap (\(a, s1) -> f a `parse` s1) . parse p
+  p >>= f  = Parser $ concatMap (\(a, s1) -> f a <!-- s1) . parse p
 --
 
 instance MonadPlus Parser where
@@ -66,6 +66,19 @@ chainl1 :: Parser a -> Parser (a -> a -> a) -> Parser a
 chainl1 p op = do
   a <- p
   rest a
+  where
+    rest a = return a <~> do
+      f <- op
+      b <- p
+      rest $ f a b
+--
+
+chainl2 :: Parser a -> Parser (a -> a -> a) -> Parser a
+chainl2 p op = do
+  a <- p
+  f <- op
+  b <- p
+  rest $ f a b
   where
     rest a = return a <~> do
       f <- op
@@ -130,10 +143,7 @@ chainlConnect ep op = do
 chainlWithBrackets :: Parser String -> Parser String -> Parser String
 chainlWithBrackets ep op = do
   e <- ep
-  m <- many $ do
-    o <- op
-    e <- ep
-    return $ o ++ e
+  m <- many $ op <++> ep
   return $ bracketsHelper e m
 --
 
@@ -230,11 +240,7 @@ tokenP p = do
 --
 
 tokenLP :: Parser String -> Parser String
-tokenLP p = do
-  s <- newLines0P
-  a <- p
-  return $ s ++ a
---
+tokenLP = (newLines0P <++>)
 
 seperateP :: Parser String -> Parser String -> Parser [String]
 seperateP ns ss = do
@@ -264,8 +270,19 @@ optionalSuffix ls = ' ' : ls
 (->>) = convertReservedLP
 (<||) = parseCode
 (~>)  = chainl1
+(~~>) = chainl2
 (<=>) = chainlConnect
 (</>) = chainlWithBrackets
+
+(<++>) :: Parser String -> Parser String -> Parser String
+a <++> b = do
+  x <- a
+  y <- b
+  return $ x ++ y
+--
+
+(<!--) :: Parser a -> String -> [(a, String)]
+(<!--) = parse
 
 (<|||) :: Parser String -> String -> IO ()
 (<|||) a = putStrLn . fromRight "Parse Error" . parseCode a
@@ -277,4 +294,8 @@ infixl 2 \|/
 infixl 8 </>
 infixl 8 <=>
 infixl 8 ~>
+infixl 8 ~~>
 infixl 9 ->>
+
+-- | because <|> has 3
+infixl 2 <++>

@@ -68,10 +68,7 @@ postfixUnaryOperationP = reservedWordsLP ops
   <|> "!!" ->> ""
   <|> callSuffixP
   <|> arrayAccessP
-  <|> do
-  m <- memberAccessOperationP
-  p <- postfixUnaryOperationP
-  return $ m ++ p
+  <|> memberAccessOperationP <++> postfixUnaryOperationP
   where
     ops = [ "++", "--" ]
 --
@@ -81,13 +78,9 @@ callSuffixP = a <|> b
   where
     a = do
       ta <- option0 [] typeArgumentsP
-      va <- valueArgumentsP
-      al <- annotatedLambdaP
-      return $ ta ++ va ++ al
-    b = do
-      ta <- typeArgumentsP
-      al <- annotatedLambdaP
-      return $ ta ++ al
+      va <- valueArgumentsP <++> annotatedLambdaP
+      return $ ta ++ va
+    b = typeArgumentsP <++> annotatedLambdaP
 --
 
 annotatedLambdaP :: Parser String
@@ -122,11 +115,7 @@ arrayAccessP = do
 --
 
 constructorInvocationP :: Parser String
-constructorInvocationP = do
-  t <- userTypeP
-  s <- callSuffixP
-  return $ t ++ s
---
+constructorInvocationP = userTypeP <++> callSuffixP
 
 postfixUnaryExpressionP :: Parser String
 postfixUnaryExpressionP = do
@@ -169,7 +158,7 @@ namedInfix = b <|> a
     -- b = elvisExpressionP ~> do
     --   inOperationP
     --   return $ \l r -> r ++ ".contains(" ++ l ++ ")"
-    b = elvisExpressionP ~> do
+    b = elvisExpressionP ~~> do
       (i : _) <- inOperationP
       return $ if i == '!'
         then \l r -> '!' : r ++ ".contains(" ++ l ++ ")"
@@ -177,7 +166,7 @@ namedInfix = b <|> a
 
     a = do
       e <- elvisExpressionP
-      m <- reservedP [] <~> do
+      m <- option0 [] $ do
         i <- isOperationP
         t <- typeP
         return $ i ++ optionalSuffix t

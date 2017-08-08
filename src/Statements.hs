@@ -80,9 +80,8 @@ whenEntryP s = a <|> b
     --   return $ "default:" ++ cs ++ ";break;"
     b = do
       reservedLP "else"
-      cs <- getCS
+      getCS
       -- becase the `else` keyword will be added by `whenP`
-      return cs
     getCS = do
       reservedLP "->"
       cs <- controlStructureBodyP
@@ -143,12 +142,18 @@ finallyBlockP = do
 loopP :: Parser String
 loopP = whileP <|> doWhileP <|> forP
 
-whileP :: Parser String
-whileP = do
+whileHeaderP :: Parser String
+whileHeaderP = do
   reservedLP "while"
   reservedLP "("
   e <- expressionP
   reservedLP ")"
+  return e
+--
+
+whileP :: Parser String
+whileP = do
+  e <- whileHeaderP
   b <- controlStructureBodyP
   return $ "while(" ++ e ++ ")" ++ b
 --
@@ -158,10 +163,7 @@ doWhileP :: Parser String
 doWhileP = do
   reservedLP "do"
   b <- controlStructureBodyP
-  reservedLP "while"
-  reservedLP "("
-  e <- expressionP
-  reservedLP ")"
+  e <- whileHeaderP
   return $ "do" ++ b ++ "while(" ++ e ++ ");"
 --
 
@@ -175,5 +177,5 @@ forP = do
   e <- expressionP
   reservedLP ")"
   b <- constructorInvocationP
-  return $ "/* for in loop */"
+  return "/* for in loop */"
 --
