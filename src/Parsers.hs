@@ -1,5 +1,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE ApplicativeDo #-}
+{-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE ViewPatterns #-}
 
 module Parsers where
 
@@ -15,10 +17,8 @@ import Control.Applicative
 newtype Parser a = Parser { parse :: String -> [(a, String)]  }
 
 parseCode :: Parser a -> String -> Either String a
-parseCode m s = case m <!-- s of
-  [(res, [])] -> Right res
-  _           -> Left "Hugh?"
---
+parseCode m (parse m -> [(res, [])]) = Right res
+parseCode _ _                        = Left "Hugh?"
 
 instance Functor Parser where
   fmap f (Parser ps) = Parser $ \p -> [ (f a, b) | (a, b) <- ps p ]
@@ -51,7 +51,7 @@ instance Alternative Parser where
 (<~>) = flip (<|>)
 
 item :: Parser Char
-item = Parser $ \s -> case s of
+item = Parser $ \case
   [     ] -> [      ]
   (h : t) -> [(h, t)]
 --
