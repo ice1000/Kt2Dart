@@ -189,19 +189,21 @@ elvisExpressionP = tokenLP $ infixFunctionCallP </> "?:" ->> "??"
 
 infixFunctionCallP :: Parser String
 infixFunctionCallP = tokenLP $ rangeExpressionP ~> do
+  newLines0P
   n <- simpleNameP
   return $ \l r -> l ++ "." ++ n ++ "(" ++ r ++ ")"
 --
 
 -- | I'm not sure how to express this in Dart
 rangeExpressionP :: Parser String
-rangeExpressionP = do
-  e <- additiveExpressionP
-  m <- many $ do
-    o <- reservedLP ".."
-    e <- additiveExpressionP
-    return $ o ++ e
-  return $ e ++ join m
+rangeExpressionP = additiveExpressionP </> reservedLP ".."
+  -- do
+  --   e <- additiveExpressionP
+  --   m <- many $ do
+  --     o <- reservedLP ".."
+  --     e <- additiveExpressionP
+  --     return $ o ++ e
+  --   return $ e ++ join m
 --
 
 callableReferenceP :: Parser String
