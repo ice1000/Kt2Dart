@@ -11,3 +11,4 @@ primaryConstructorP :: Parser String
 delegationSpecifierP :: Parser String
 objectP :: Parser String
 companionObjectP :: Parser String
+getterP :: Parser String

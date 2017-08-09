@@ -73,8 +73,16 @@ objectP = do
   return $ "class " ++ n ++ join b
 --  
 
+-- | maybe I just need the parameters
 primaryConstructorP :: Parser String
-primaryConstructorP = undefined
+primaryConstructorP = do
+  m <- option0 [] $ do
+    m <- modifiersP
+    reservedLP "constructor"
+    return m
+  b <- bracketsP $ reservedLP "," \|/ functionParameterP
+  return $ join b
+--
 
 delegationSpecifierP :: Parser String
 delegationSpecifierP = constructorInvocationP
@@ -90,3 +98,17 @@ explicitDelegationP = do
   return $ "/* WARNING: delegation " ++ e ++ " to " ++ t ++ " is not supported */"
 --
 
+getterP :: Parser String
+getterP = do
+  m <- modifiersP
+  reservedLP "get"
+  (t, b) <- option0 ([], []) $ do
+    bracketsP newLines0P
+    t <- option0 [] $ do
+      reservedLP ":"
+      typeP
+    b <- functionBodyP
+    return (t, b)
+  -- TODO
+  undefined
+--
