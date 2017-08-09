@@ -7,3 +7,7 @@ explicitDelegationP :: Parser String
 membersP :: Parser [String]
 memberDelarationP :: Parser String
 classBodyP :: Parser [String]
+primaryConstructorP :: Parser String
+delegationSpecifierP :: Parser String
+objectP :: Parser String
+companionObjectP :: Parser String

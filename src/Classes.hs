@@ -19,6 +19,7 @@ anonymousInitializerP = do
   blockP
 --
 
+-- | should deal with statics
 classBodyP :: Parser [String]
 classBodyP = do
   reservedLP "{"
@@ -27,6 +28,7 @@ classBodyP = do
   return m
 --
 
+-- | should deal with statics
 membersP :: Parser [String]
 membersP = many memberDelarationP
 
@@ -39,9 +41,11 @@ companionObjectP = do
   d <- option0 [] $ do
     reservedLP ":"
     n <- reservedLP "," \|/ delegationSpecifierP
-    return $ take 1 n
+    return $ join n
   b <- classBodyP
-  return $ "/* WARNING: companion object " ++ n ++ " is converted into static methods */"
+  -- TODO
+  return $ "/* WARNING: companion object " ++ n
+    ++ ":" ++ d ++ " is converted into static methods */"
 --
 
 memberDelarationP :: Parser String
@@ -54,6 +58,23 @@ memberDelarationP = typeAliasP
 --  <|> propertyP
 --  <|> secondaryConstructerP
 --
+
+objectP :: Parser String
+objectP = do
+  reservedLP "object"
+  n <- simpleNameP
+  c <- primaryConstructorP
+  d <- option0 [] $ do
+    reservedLP ":"
+    n <- reservedLP "," \|/ delegationSpecifierP
+    return $ join n
+  b <- classBodyP
+  -- TODO
+  return $ "class " ++ n ++ join b
+--  
+
+primaryConstructorP :: Parser String
+primaryConstructorP = undefined
 
 delegationSpecifierP :: Parser String
 delegationSpecifierP = constructorInvocationP

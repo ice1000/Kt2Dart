@@ -1,10 +1,9 @@
 git status
 cd ./src/
-ghc Main.hs -O2
+ghc Main.hs
 rm *~ *.hi *.hi-boot *.o-boot *.o
 mv ./Main ./../Main
 cd ./../
-rm *~ # ./Main ./transpiler
 read -p "Enter commit message:"
 echo
 git add *
