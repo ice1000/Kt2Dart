@@ -32,7 +32,7 @@ classBodyP = do
 membersP :: Parser [String]
 membersP = many memberDelarationP
 
-companionObjectP :: Parser String
+companionObjectP :: Parser (String, [String])
 companionObjectP = do
   m <- modifiersP
   reservedLP "companion"
@@ -44,19 +44,23 @@ companionObjectP = do
     return $ join n
   b <- classBodyP
   -- TODO
-  return $ "/* WARNING: companion object " ++ n
-    ++ ":" ++ d ++ " is converted into static methods */"
+  return ("/* WARNING: companion object " ++ n
+    ++ ":" ++ d ++ " is converted into static methods */", b)
 --
 
 memberDelarationP :: Parser String
 memberDelarationP = typeAliasP
-  <|> companionObjectP
+  <|> coP
   <|> functionP
   <|> anonymousInitializerP
 --  <|> objectP
 --  <|> classP
 --  <|> propertyP
 --  <|> secondaryConstructerP
+  where
+    coP = do
+      (comments, members) <- companionObjectP
+      return $ comments ++ join [ "static " ++ e | e <- members ]
 --
 
 objectP :: Parser String
@@ -70,7 +74,7 @@ objectP = do
     return $ join n
   b <- classBodyP
   -- TODO
-  return $ "class " ++ n ++ join b
+  return $ "class " ++ n ++ join [ "static " ++ e | e <- b ]
 --  
 
 -- | maybe I just need the parameters

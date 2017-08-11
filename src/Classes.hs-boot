@@ -10,5 +10,5 @@ classBodyP :: Parser [String]
 primaryConstructorP :: Parser String
 delegationSpecifierP :: Parser String
 objectP :: Parser String
-companionObjectP :: Parser String
 getterP :: Parser String
+companionObjectP :: Parser (String, [String])
