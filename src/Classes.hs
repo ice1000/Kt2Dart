@@ -6,6 +6,7 @@ import Control.Applicative
 import Control.Monad
 
 import Parsers
+import Annotations
 import LexicalStructure
 import {-# SOURCE #-} Rules
 import {-# SOURCE #-} Functions
@@ -44,23 +45,30 @@ companionObjectP = do
     return $ join n
   b <- classBodyP n
   -- TODO
-  return ("/* WARNING: companion object " ++ n
-    ++ ":" ++ d ++ " is converted into static methods */", b)
+  -- 23333
+  return (
+    "/* WARNING: companion object "
+      ++ n ++ ":" ++ d
+      ++ " is converted into static methods */", b)
 --
 
 memberDelarationP :: String -> Parser String
-memberDelarationP n = typeAliasP
-  <|> coP
-  <|> functionP
-  <|> anonymousInitializerP
-  <|> objectP
-  <|> classP
-  <|> propertyP
-  <|> secondaryConstructerP n
+memberDelarationP n = do
+  a <- typeAliasP
+    <|> coP
+    <|> functionP
+    <|> anonymousInitializerP
+    <|> objectP
+    <|> classP
+    <|> propertyP
+    <|> secondaryConstructerP n
+  option0 ' ' semiP
+  return a
   where
     coP = do
       (cs, ms) <- companionObjectP
-      return $ cs ++ join [ "static " ++ e | e <- ms ]
+      return $ cs
+        ++ join [ "static " ++ e | e <- ms ]
 --
 
 objectP :: Parser String
@@ -74,13 +82,17 @@ objectP = do
     return $ join n
   b <- classBodyP n
   -- TODO
-  return $ "class " ++ n ++ join [ "static " ++ e | e <- b ]
+  return $ "class " ++ n
+    ++ join [ "static " ++ e | e <- b ]
 --
+
+debug = reservedLP []
 
 classP :: Parser String
 classP = do
   m <- modifiersP
   reservedWordsLP [ "class", "interface" ]
+  newLines0P -- necessary
   n <- simpleNameP
   t <- option0 [] typeParametersP
   p <- option0 [] primaryConstructorP
@@ -90,11 +102,16 @@ classP = do
     d <- reservedLP "," \|/ delegationSpecifierP
     return $ "extends " ++ a ++ join d
   c <- typeConstraintsP
-  (h : t) <- option0 [] $
+  s <- option0 [] $
     classBodyP n <|> enumClassBodyP
-  return $ m ++ " class " ++ n ++ t ++ e ++ c
-    ++ [ h ] ++ p ++ t
+  return $ optionalPrefix m ++ "class " ++ n ++ t
+    ++ e ++ c ++ case s of
+          [] -> '{' : p ++ "}"
+          ls -> '{' : (join $ p : ls) ++ "}"
 --
+
+enumClassBodyP :: Parser [String]
+enumClassBodyP = return <$> reservedLP "enumClassBody"
 
 -- | maybe I just need the parameters
 primaryConstructorP :: Parser String
@@ -137,7 +154,8 @@ getterP n = do
     return (t, b)
   return $ case g of
     ([], []) -> []
-    (t , b ) -> t ++ " get " ++ n ++ processBody b
+    (t , b ) -> t ++ " get "
+      ++ n ++ processBody b
 --
 
 processBody :: String -> String
