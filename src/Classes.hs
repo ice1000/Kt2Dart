@@ -53,8 +53,8 @@ memberDelarationP n = typeAliasP
   <|> coP
   <|> functionP
   <|> anonymousInitializerP
---  <|> objectP
---  <|> classP
+  <|> objectP
+  <|> classP
   <|> propertyP
   <|> secondaryConstructerP n
   where
@@ -75,7 +75,26 @@ objectP = do
   b <- classBodyP n
   -- TODO
   return $ "class " ++ n ++ join [ "static " ++ e | e <- b ]
---  
+--
+
+classP :: Parser String
+classP = do
+  m <- modifiersP
+  reservedWordsLP [ "class", "interface" ]
+  n <- simpleNameP
+  t <- option0 [] typeParametersP
+  p <- option0 [] primaryConstructorP
+  e <- option0 [] $ do
+    reservedLP ":"
+    a <- annotationsP
+    d <- reservedLP "," \|/ delegationSpecifierP
+    return $ "extends " ++ a ++ join d
+  c <- typeConstraintsP
+  (h : t) <- option0 [] $
+    classBodyP n <|> enumClassBodyP
+  return $ m ++ " class " ++ n ++ t ++ e ++ c
+    ++ [ h ] ++ p ++ t
+--
 
 -- | maybe I just need the parameters
 primaryConstructorP :: Parser String

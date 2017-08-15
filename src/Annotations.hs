@@ -13,7 +13,7 @@ import {-# SOURCE #-} Types
 import {-# SOURCE #-} Rules
 
 annotationsP :: Parser String
-annotationsP = do
+annotationsP = option0 [] $ do
   s <- newLines0P \|/ annotationP <|> annotationListP
   return $ join s
 --
