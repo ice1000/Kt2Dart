@@ -15,6 +15,7 @@ import {-# SOURCE #-} Types
 
 functionP :: Parser String
 functionP = do
+  m <- modifiersP
   reservedP "fun"
   spaces0P
   tp <- option0 [] typeParametersP
@@ -32,7 +33,7 @@ functionP = do
     return $ t ++ " "
   tc <- typeConstraintsP
   fb <- option0 [] functionBodyP
-  return $ rt ++ sn ++ tp ++ vp ++ fb
+  return $ m ++ " " ++ rt ++ sn ++ tp ++ vp ++ fb
 --
 
 functionBodyP :: Parser String

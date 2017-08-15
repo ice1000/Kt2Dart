@@ -63,7 +63,7 @@ memberDelarationP n = do
     <|> propertyP
     <|> secondaryConstructerP n
   option0 ' ' semiP
-  return a
+  return $ a ++ ";"
   where
     coP = do
       (cs, ms) <- companionObjectP

@@ -67,6 +67,16 @@ R run<T,R>(Function/* (T) -> R */ block){}
 ...
 *Statements> whenP <||| "when(expr){expr->{};expr,is A->{}; else->{};}"
 if(expr){}else if(expr||expr is A){}else{}
+*Classes> :l Classes.hs
+...
+*Classes> classP <||| "class A {override fun a(): A; fun b(a: A):C;}"
+class A{@override A a(); C b(A a);}
+*Classes> classP <||| "class A {override fun a(): A; private fun b(a: A):C;}"
+class A{@override A a();private C b(A a);}
+*Classes> classP <||| "class A {override fun a(): A; private fun main(a: A):C;}"
+class A{@override A a();private C main(A a);}
+*Classes> classP <||| "class A {override fun a(): A; private fun main(a: Array<String>):C;}"
+class A{@override A a();private C main(List<String> a);}
 ```
 
 # Why Haskell
