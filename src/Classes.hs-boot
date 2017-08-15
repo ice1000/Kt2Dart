@@ -4,8 +4,8 @@ import Parsers
 
 anonymousInitializerP :: Parser String
 explicitDelegationP :: Parser String
-membersP :: Parser [String]
-memberDelarationP :: Parser String
+membersP :: String -> Parser [String]
+memberDelarationP :: String -> Parser String
 classBodyP :: Parser [String]
 primaryConstructorP :: Parser String
 delegationSpecifierP :: Parser String
@@ -15,3 +15,4 @@ setterP :: String -> Parser String
 companionObjectP :: Parser (String, [String])
 constructorDelegationCallP :: Parser String
 propertyP :: Parser String
+secondaryConstructerP :: String -> Parser String

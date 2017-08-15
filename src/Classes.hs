@@ -20,17 +20,17 @@ anonymousInitializerP = do
 --
 
 -- | should deal with statics
-classBodyP :: Parser [String]
-classBodyP = do
+classBodyP :: String -> Parser [String]
+classBodyP n = do
   reservedLP "{"
-  m <- membersP
+  m <- membersP n
   reservedLP "}"
   return m
 --
 
 -- | should deal with statics
-membersP :: Parser [String]
-membersP = many memberDelarationP
+membersP :: String -> Parser [String]
+membersP = many . memberDelarationP
 
 companionObjectP :: Parser (String, [String])
 companionObjectP = do
@@ -42,21 +42,21 @@ companionObjectP = do
     reservedLP ":"
     n <- reservedLP "," \|/ delegationSpecifierP
     return $ join n
-  b <- classBodyP
+  b <- classBodyP n
   -- TODO
   return ("/* WARNING: companion object " ++ n
     ++ ":" ++ d ++ " is converted into static methods */", b)
 --
 
-memberDelarationP :: Parser String
-memberDelarationP = typeAliasP
+memberDelarationP :: String -> Parser String
+memberDelarationP n = typeAliasP
   <|> coP
   <|> functionP
   <|> anonymousInitializerP
 --  <|> objectP
 --  <|> classP
   <|> propertyP
---  <|> secondaryConstructerP
+  <|> secondaryConstructerP n
   where
     coP = do
       (cs, ms) <- companionObjectP
@@ -72,7 +72,7 @@ objectP = do
     reservedLP ":"
     n <- reservedLP "," \|/ delegationSpecifierP
     return $ join n
-  b <- classBodyP
+  b <- classBodyP n
   -- TODO
   return $ "class " ++ n ++ join [ "static " ++ e | e <- b ]
 --  
@@ -139,7 +139,7 @@ setterP n = do
   return $ case g of
     ([], []) -> []
     (p , b ) -> "set " ++ n
-    ++ "(" ++ p ++ ")" ++ processBody p
+      ++ "(" ++ p ++ ")" ++ processBody p
 --
 
 constructorDelegationCallP :: Parser String
@@ -169,9 +169,25 @@ propertyP = do
         ++ e ++ " is not supported */"
   gs <- getterP n <|> setterP n
   sg <- getterP n <|> setterP n
+  option0 ' ' semiP
+  return $ case by of
+    [] -> gs ++ sg
+    by -> md ++ t ++ et ++ n ++ by ++ gs ++ sg
   where
     mtp = do
       q <- multipleVariableDeclarationsP
       return ([], "/* multiple variable declaration "
         ++ q ++ " is not supported */")
+--
+
+secondaryConstructerP :: String -> Parser String
+secondaryConstructerP n = do
+  m <- modifiersP
+  reservedLP "constructor"
+  p <- valueArgumentsP
+  c <- option0 [] $ do
+    reservedLP ":"
+    constructorDelegationCallP
+  (h : t) <- blockP
+  return $ n ++ p ++ [ h ] ++ c ++ ";" ++ t
 --
