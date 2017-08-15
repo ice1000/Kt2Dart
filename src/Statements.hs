@@ -122,12 +122,12 @@ tryP = do
 catchBlockP :: Parser String
 catchBlockP = do
   reservedLP "catch"
-  reservedLP "("
-  a <- annotationsP
-  n <- simpleNameP
-  reservedLP ":"
-  t <- userTypeP
-  reservedLP ")"
+  (a, n, t) <- bracketsP $ do
+    a <- annotationsP
+    n <- simpleNameP
+    reservedLP ":"
+    t <- userTypeP
+    return (a, n, t)
   b <- blockP
   return $ "catch(" ++ optionalPrefix a ++ t ++ " " ++ n ++ "){" ++ b ++ "}"
 --
@@ -145,10 +145,7 @@ loopP = whileP <|> doWhileP <|> forP
 whileHeaderP :: Parser String
 whileHeaderP = do
   reservedLP "while"
-  reservedLP "("
-  e <- expressionP
-  reservedLP ")"
-  return e
+  bracketsP expressionP
 --
 
 whileP :: Parser String
@@ -183,9 +180,7 @@ forP = do
 ifP :: Parser String
 ifP = do
   reservedLP "if"
-  reservedLP "("
-  e <- expressionP
-  reservedLP ")"
+  e <- bracketsP expressionP
   b <- controlStructureBodyP
   option0 [] semiSP
   o <- option0 [] $ reservedLP "else" <++> controlStructureBodyP

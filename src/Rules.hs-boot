@@ -13,3 +13,4 @@ lambdaParameterP :: Parser String
 controlStructureBodyP :: Parser String
 multipleVariableDeclarationsP :: Parser String
 variableDeclarationEntryP :: Parser String
+variableDeclarationEntrySP :: Parser (String, String)

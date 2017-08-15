@@ -75,7 +75,8 @@ typeAliasP = do
   p <- option0 [] typeParametersP
   reservedLP "="
   t <- typeP
-  return $ m ++ " class " ++ n ++ p ++ " extends " ++ t
+  return $ m ++ " class "
+    ++ n ++ p ++ " extends " ++ t
 --
 
 userTypeP :: Parser String
@@ -105,18 +106,23 @@ simpleUserTypeP = tokenLP $ do
 --   The `simple name` is `paramter` in the doc
 functionTypeP :: Parser String
 functionTypeP = do
-  b <- bracketsP $ option0 [] $ reservedLP "," \|/ tokenLP typeP -- simpleNameP
+  b <- bracketsP $ option0 [] $
+    reservedLP "," \|/ tokenLP typeP -- simpleNameP
   reservedLP "->"
   c <- typeP
   return $ "Function" ++ "/* ("
-    ++ join (typeNamesMapping <$> b) ++ ") -> " ++ c ++ " */"
+    ++ join (typeNamesMapping <$> b)
+    ++ ") -> " ++ c ++ " */"
 --
 
 typeConstraintsP :: Parser String
 typeConstraintsP = option0 [] $ do
   reservedP "where"
-  ls <- reservedP "," \|/ typeConstraintP
-  return $ join ls
+  l <- reservedP "," \|/ typeConstraintP
+  return $ case l of
+    [] -> []
+    ls -> "/* type constraints "
+      ++ join ls ++ " is not supported */"
 --
 
 typeConstraintP :: Parser String

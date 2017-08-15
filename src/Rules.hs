@@ -75,12 +75,18 @@ labelReferenceP = labelNameP
 labelDefinitionP :: Parser String
 labelDefinitionP = labelNameSP
 
-theTypedP :: Parser String -> Parser String
-theTypedP s = do
+theTypedSP :: Parser String -> Parser (String, String)
+theTypedSP s = do
   n <- s
   o <- option0 [] $ do
     reservedLP ":"
     typeP
+  return (o, n)
+--
+
+theTypedP :: Parser String -> Parser String
+theTypedP s = do
+  (o, n) <- theTypedSP s
   return $ f o ++ n
   where f [] = []
         f ls = ls ++ " "
@@ -93,6 +99,9 @@ lambdaParameterP = tokenLP $ variableDeclarationEntryP
 
 variableDeclarationEntryP :: Parser String
 variableDeclarationEntryP = theTypedP simpleNameP
+
+variableDeclarationEntrySP :: Parser (String, String)
+variableDeclarationEntrySP = theTypedSP simpleNameP
 
 multipleVariableDeclarationsP :: Parser String
 multipleVariableDeclarationsP = do

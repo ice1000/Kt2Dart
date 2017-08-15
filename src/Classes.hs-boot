@@ -10,5 +10,8 @@ classBodyP :: Parser [String]
 primaryConstructorP :: Parser String
 delegationSpecifierP :: Parser String
 objectP :: Parser String
-getterP :: Parser String
+getterP :: String -> Parser String
+setterP :: String -> Parser String
 companionObjectP :: Parser (String, [String])
+constructorDelegationCallP :: Parser String
+propertyP :: Parser String

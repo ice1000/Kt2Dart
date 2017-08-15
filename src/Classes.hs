@@ -55,12 +55,12 @@ memberDelarationP = typeAliasP
   <|> anonymousInitializerP
 --  <|> objectP
 --  <|> classP
---  <|> propertyP
+  <|> propertyP
 --  <|> secondaryConstructerP
   where
     coP = do
-      (comments, members) <- companionObjectP
-      return $ comments ++ join [ "static " ++ e | e <- members ]
+      (cs, ms) <- companionObjectP
+      return $ cs ++ join [ "static " ++ e | e <- ms ]
 --
 
 objectP :: Parser String
@@ -84,7 +84,8 @@ primaryConstructorP = do
     m <- modifiersP
     reservedLP "constructor"
     return m
-  b <- bracketsP $ reservedLP "," \|/ functionParameterP
+  b <- bracketsP $
+    reservedLP "," \|/ functionParameterP
   return $ join b
 --
 
@@ -99,20 +100,78 @@ explicitDelegationP = do
   t <- userTypeP
   reservedLP "by"
   e <- expressionP
-  return $ "/* WARNING: delegation " ++ e ++ " to " ++ t ++ " is not supported */"
+  return $ "/* WARNING: delegation "
+    ++ e ++ " to " ++ t ++ " is not supported */"
 --
 
-getterP :: Parser String
-getterP = do
+-- | The name of the property should be given
+getterP :: String -> Parser String
+getterP n = do
   m <- modifiersP
   reservedLP "get"
-  (t, b) <- option0 ([], []) $ do
+  g <- option0 ([], []) $ do
     bracketsP newLines0P
-    t <- option0 [] $ do
+    t <- option0 "dynamic" $ do
       reservedLP ":"
       typeP
     b <- functionBodyP
     return (t, b)
-  -- TODO
-  undefined
+  return $ case g of
+    ([], []) -> []
+    (t , b ) -> t ++ " get " ++ n ++ processBody b
+--
+
+processBody :: String -> String
+processBody b = case head b of
+  '=' -> b ++ ";"
+  _   -> "()" ++ b ++ "()"
+--
+
+setterP :: String -> Parser String
+setterP n = do
+  m <- modifiersP
+  reservedLP "set"
+  g <- option0 ([], []) $ do
+    p <- bracketsP $
+      modifiersP <++> parameterP <|> simpleNameP
+    b <- functionBodyP
+    return (p, b)
+  return $ case g of
+    ([], []) -> []
+    (p , b ) -> "set " ++ n
+    ++ "(" ++ p ++ ")" ++ processBody p
+--
+
+constructorDelegationCallP :: Parser String
+constructorDelegationCallP = a <++> valueArgumentsP
+  where a = reservedWordsLP [ "this", "super" ]
+--
+
+propertyP :: Parser String
+propertyP = do
+  md <- modifiersP
+  reservedWordsLP [ "var", "val" ]
+  tp <- option0 [] typeParametersP
+  et <- option0 [] $ do
+    t <- typeP
+    reservedLP "."
+    return $ "/* extension property to "
+      ++ t ++ " is not supported */"
+  (n, t) <- variableDeclarationEntrySP <|> mtp
+  tc <- typeConstraintsP
+  by <- option0 [] $ do
+    w <- reservedWordsLP [ "by", "=" ]
+    e <- expressionP
+    semiP
+    return $ case w of
+      "=" -> '=' : e
+      _   -> "/* delegation property by "
+        ++ e ++ " is not supported */"
+  gs <- getterP n <|> setterP n
+  sg <- getterP n <|> setterP n
+  where
+    mtp = do
+      q <- multipleVariableDeclarationsP
+      return ([], "/* multiple variable declaration "
+        ++ q ++ " is not supported */")
 --

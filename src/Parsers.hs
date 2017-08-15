@@ -65,12 +65,14 @@ disatisfy p = satisfy $ not . p
 chainl1 :: Parser a -> Parser (a -> a -> a) -> Parser a
 chainl1 p op = do
   a <- p
-  rest a
-  where
-    rest a = return a <~> do
-      f <- op
-      b <- p
-      rest $ f a b
+  restOf p op a
+--
+
+restOf :: Parser a -> Parser (b -> a -> b) -> b -> Parser b
+restOf p op a = return a <~> do
+  f <- op
+  b <- p
+  restOf p op $ f a b
 --
 
 chainl2 :: Parser a -> Parser (a -> a -> a) -> Parser a
@@ -78,12 +80,7 @@ chainl2 p op = do
   a <- p
   f <- op
   b <- p
-  rest $ f a b
-  where
-    rest a = return a <~> do
-      f <- op
-      b <- p
-      rest $ f a b
+  restOf p op $ f a b
 --
 
 chainr1 :: Parser a -> Parser (a -> a -> a) -> Parser a
