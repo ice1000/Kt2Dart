@@ -6,7 +6,7 @@ anonymousInitializerP :: Parser String
 explicitDelegationP :: Parser String
 membersP :: String -> Parser [String]
 memberDelarationP :: String -> Parser String
-classBodyP :: Parser [String]
+classBodyP :: String -> Parser [String]
 classP :: Parser String
 primaryConstructorP :: Parser String
 delegationSpecifierP :: Parser String

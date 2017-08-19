@@ -120,6 +120,9 @@ simpleNameP = javaIdentifierP <|> do
   return i
 --
 
+simpleTokensP :: Parser [String]
+simpleTokensP = reservedLP "." \|/ tokenLP simpleNameP
+
 -- | converts them into warnings
 labelNameP :: Parser String
 labelNameP = do

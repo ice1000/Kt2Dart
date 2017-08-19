@@ -7,8 +7,7 @@ import Control.Monad
 import System.IO
 
 import Parsers
-import {-# SOURCE #-} Functions
-import {-# SOURCE #-} Types
+import Kotlin
 
 main :: IO ()
 main = do
@@ -21,7 +20,7 @@ main = do
     (Left  o) -> o
     (Right o) -> o
   where p = do
-          f <- functionP <~> typeP
+          f <- kotlinFileP
           newLines0P
           return f
 --
