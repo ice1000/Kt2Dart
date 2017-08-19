@@ -33,7 +33,8 @@ functionP = do
     return $ t ++ " "
   tc <- typeConstraintsP
   fb <- option0 [] functionBodyP
-  return $ m ++ " " ++ rt ++ sn ++ tp ++ vp ++ fb
+  return $ optionalPrefix m ++ rt
+    ++ sn ++ tp ++ vp ++ fb
 --
 
 functionBodyP :: Parser String

@@ -16,9 +16,7 @@ main = do
   allCodes <- readFile file
   putStrLn "File contents:"
   putStrLn allCodes
-  putStrLn $ case p <|| allCodes of
-    (Left  o) -> o
-    (Right o) -> o
+  putStrLn . show $ p <!-- allCodes
   where p = do
           f <- kotlinFileP
           newLines0P

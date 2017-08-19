@@ -24,6 +24,7 @@ anonymousInitializerP = do
 classBodyP :: String -> Parser [String]
 classBodyP n = do
   reservedLP "{"
+--  newLines0P
   m <- membersP n
   reservedLP "}"
   return m
@@ -31,7 +32,7 @@ classBodyP n = do
 
 -- | should deal with statics
 membersP :: String -> Parser [String]
-membersP = many . tokenLP . memberDelarationP
+membersP = many . memberDelarationP
 
 companionObjectP :: Parser (String, [String])
 companionObjectP = do
@@ -54,7 +55,7 @@ companionObjectP = do
 --
 
 memberDelarationP :: String -> Parser String
-memberDelarationP n = do
+memberDelarationP n = tokenLP $ do
   a <- typeAliasP
     <|> functionP
     <|> coP
