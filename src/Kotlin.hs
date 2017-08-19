@@ -77,7 +77,7 @@ fileAnnotationP = do
 --
 
 topLevelObjectP :: Parser String
-topLevelObjectP = classP
+topLevelObjectP = tokenLP $ classP
   <|> objectP
   <|> functionP
   <|> propertyP

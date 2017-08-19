@@ -68,13 +68,13 @@ postfixUnaryOperationP = reservedWordsLP ops
   <|> "!!" ->> ""
   <|> callSuffixP
   <|> arrayAccessP
-  <|> memberAccessOperationP <++> postfixUnaryOperationP
+  <|> memberAccessOperationP <++> postfixUnaryExpressionP
   where
     ops = [ "++", "--" ]
 --
 
 callSuffixP :: Parser String
-callSuffixP = a <|> b
+callSuffixP = a <~> b
   where
     a = do
       ta <- option0 [] typeArgumentsP
@@ -206,7 +206,7 @@ callableReferenceP = do
   newLines0P
   n <- simpleNameP
   o <- option0 [] typeArgumentsP
-  return $ t ++ n ++ o
+  return $ t ++ "." ++ n ++ o
 --
 
 atomicExpressionP :: Parser String

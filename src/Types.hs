@@ -70,8 +70,8 @@ typeAliasP :: Parser String
 typeAliasP = do
   m <- modifiersP
   reservedLP "typealias"
-  n <- simpleNameP
   newLines0P
+  n <- simpleNameP
   p <- option0 [] typeParametersP
   reservedLP "="
   t <- typeP

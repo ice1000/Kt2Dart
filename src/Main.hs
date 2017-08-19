@@ -12,7 +12,7 @@ import Kotlin
 main :: IO ()
 main = do
   putStrLn "Please specify the input file:"
-  file <- getLine
+  file <- return "tests/types.kt" -- getLine
   allCodes <- readFile file
   putStrLn "File contents:"
   putStrLn allCodes

@@ -31,13 +31,14 @@ classBodyP n = do
 
 -- | should deal with statics
 membersP :: String -> Parser [String]
-membersP = many . memberDelarationP
+membersP = many . tokenLP . memberDelarationP
 
 companionObjectP :: Parser (String, [String])
 companionObjectP = do
   m <- modifiersP
   reservedLP "companion"
   reservedLP "object"
+  newLines0P
   n <- option0 "Companion" simpleNameP
   d <- option0 [] $ do
     reservedLP ":"
@@ -55,8 +56,8 @@ companionObjectP = do
 memberDelarationP :: String -> Parser String
 memberDelarationP n = do
   a <- typeAliasP
-    <|> coP
     <|> functionP
+    <|> coP
     <|> anonymousInitializerP
     <|> objectP
     <|> classP
@@ -74,6 +75,7 @@ memberDelarationP n = do
 objectP :: Parser String
 objectP = do
   reservedLP "object"
+  newLines0P
   n <- simpleNameP
   c <- primaryConstructorP
   d <- option0 [] $ do
@@ -100,11 +102,11 @@ classP = do
     reservedLP ":"
     a <- annotationsP
     d <- reservedLP "," \|/ delegationSpecifierP
-    return $ "extends " ++ a ++ join d
+    return $ " extends " ++ a ++ join d
   c <- typeConstraintsP
   s <- option0 [] $
     classBodyP n <|> enumClassBodyP
-  return $ optionalPrefix m ++ "class " ++ n ++ t
+  return $ optionalSuffix m ++ "class " ++ n ++ t
     ++ e ++ c ++ case s of
           [] -> '{' : p ++ "}"
           ls -> '{' : (join $ p : ls) ++ "}"

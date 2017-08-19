@@ -17,9 +17,9 @@ functionP :: Parser String
 functionP = do
   m <- modifiersP
   reservedP "fun"
-  spaces0P
+  newLines0P
   tp <- option0 [] typeParametersP
-  spaces0P
+  newLines0P
   rc <- option0 [] $ do
     t <- typeP
     reservedLP "."
@@ -37,7 +37,7 @@ functionP = do
 --
 
 functionBodyP :: Parser String
-functionBodyP = blockP <~> do
+functionBodyP = blockP <|> do
   reservedLP "="
   e <- expressionP
   return $ "=>" ++ e

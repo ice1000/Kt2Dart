@@ -295,4 +295,4 @@ infixl 8 ~~>
 infixl 9 ->>
 
 -- | because <|> has 3
-infixl 2 <++>
+-- infixl 4 <++>
