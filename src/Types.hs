@@ -6,6 +6,7 @@ import Control.Applicative
 import Control.Monad
 
 import Parsers
+import Annotations
 import LexicalStructure
 import {-# SOURCE #-} Modifiers
 import {-# SOURCE #-} Rules
@@ -127,7 +128,8 @@ typeConstraintsP = option0 [] $ do
 
 typeConstraintP :: Parser String
 typeConstraintP = do
-  m <- modifiersP
+  m <- annotationsP
+  newLines0P
   n <- simpleNameP
   u <- option0 [] userTypeP
   return $ m ++ n ++ u

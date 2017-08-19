@@ -123,7 +123,7 @@ catchBlockP :: Parser String
 catchBlockP = do
   reservedLP "catch"
   (a, n, t) <- bracketsP $ do
-    a <- annotationsP
+    a <- option0 [] annotationsP
     n <- simpleNameP
     reservedLP ":"
     t <- userTypeP
@@ -168,7 +168,7 @@ forP :: Parser String
 forP = do
   reservedLP "for"
   reservedLP "("
-  a <- annotationsP
+  a <- option0 [] annotationsP
   v <- multipleVariableDeclarationsP <|> variableDeclarationEntryP
   reservedLP "in"
   e <- expressionP

@@ -19,7 +19,7 @@ expressionP = disjunctionP <=> assignmentOperatorP
 
 blockLevelExpressionP :: Parser String
 blockLevelExpressionP = do
-  a <- annotationsP
+  a <- option0 [] annotationsP
   e <- expressionP
   return $ a ++ "\n" ++ e
 --
@@ -34,7 +34,10 @@ inOperationP :: Parser String
 inOperationP = reservedWordsLP [ "in", "!in" ]
 
 typeOperationP :: Parser String
-typeOperationP = reservedWordsLP [ "as", "as?", ":" ]
+typeOperationP = "as" ->> " as "
+  <|> "as?" ->> "/* WARNING: as? is not supported */as "
+  <|> reservedLP ":"
+--
 
 isOperationP :: Parser String
 isOperationP = reservedLP "is" <|> "!is" ->> "is!"
@@ -90,7 +93,10 @@ annotatedLambdaP = do
     unescapedAnnotationP
   ld <- option0 [] labelDefinitionP
   fl <- functionLiteralP
-  return $ "/* WARNING: annotated lambda " ++ join ua ++ " is not supported */" ++ ld ++ fl
+  return $ case (ua, ld) of
+    ([], []) -> fl
+    (ua, ld) -> "/* WARNING: annotated lambda "
+      ++ join ua ++ " is not supported */" ++ ld ++ fl
 --
 
 memberAccessOperationP :: Parser String

@@ -100,7 +100,7 @@ classP = do
   p <- option0 [] primaryConstructorP
   e <- option0 [] $ do
     reservedLP ":"
-    a <- annotationsP
+    a <- option0 [] annotationsP
     d <- reservedLP "," \|/ delegationSpecifierP
     return $ " extends " ++ a ++ join d
   c <- typeConstraintsP
