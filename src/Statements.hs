@@ -11,6 +11,8 @@ import Annotations
 import {-# SOURCE #-} Rules
 import {-# SOURCE #-} Types
 import {-# SOURCE #-} Expressions
+import {-# SOURCE #-} Classes
+import {-# SOURCE #-} Functions
 
 statementsP :: Parser String
 statementsP = do
@@ -21,7 +23,17 @@ statementsP = do
 --
 
 statementP :: Parser String
-statementP = reservedLP "stmt"
+statementP = declarationP
+  <|> blockLevelExpressionP
+--
+
+declarationP :: Parser String
+declarationP = functionP
+  <|> propertyP
+  <|> classP
+  <|> typeAliasP
+  <|> objectP
+--
 
 jumpP :: Parser String
 jumpP = throwP <|> returnP <|> continueP <|> breakP

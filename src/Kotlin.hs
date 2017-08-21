@@ -19,6 +19,7 @@ kotlinFileP :: Parser String
 kotlinFileP = do
   p <- preambleP
   t <- many topLevelObjectP
+  newLines0P
   return $ p ++ join t
 --
 
@@ -27,6 +28,7 @@ scriptP :: Parser String
 scriptP = do
   p <- preambleP
   e <- many expressionP
+  newLines0P
   return $ p ++ join e
 --
 
