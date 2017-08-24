@@ -4,8 +4,6 @@
 
 This is a transpiler which consumes [Kotlin](https://kotlinlang.org) codes and convert them into [Dart](https://www.dartlang.org/).
 
-Currently it's completely in progress. But it can do some simple jobs right now.
-
 # Why Kt2Dart
 
 Because I want to **Make [Flutter](https://flutter.io) Great Again**.
@@ -36,48 +34,13 @@ but I will not add any support for transpiling:
 
 While these features are not fully supported:
 
-+ Naming (names like `System.\`in\`` are transpiled into `System.in` directly)
++ Naming (names like System.\`in\` are transpiled into `System.in` directly)
 + Generics (Dart's generics are covariant)
 
 Such (advanced) language features of Kotlin are too complex to transpile
 (it needs too much analyzing while Kt2Dart is just a simple tool).
 
 And this tool will raise warnings as comments when these stuffs are detected.
-
-# Have a Try
-
-You simply need a ghc to play with this.
-
-```haskell
-Prelude> :l Functions.hs
-...
-*Functions> functionP <||| "fun main(args: Array<String>): Unit { }"
-Unit main(Array<String> args){}
-*Functions> functionP <||| "fun <T, R> run(block: (T) -> R): R { }"
-R run<T,R>(Function/* (T) -> R */ block){}
-*Functions> :l Strings
-...
-*Strings> stringTemplateP <||| "\"boy next door\""
-"boy next door"
-*Strings> stringTemplateP <||| "\"boy next door with an expression ${ expr } and a var $variable\""
-"boy next door with an expression ${expr} and a var $variable"
-*Strings> stringTemplateP <||| "\"we also have escape vars: \\n \\r \\t\""
-"we also have escape vars: \n \r \t"
-*Strings> :l Statements
-...
-*Statements> whenP <||| "when(expr){expr->{};expr,is A->{}; else->{};}"
-if(expr){}else if(expr||expr is A){}else{}
-*Classes> :l Classes.hs
-...
-*Classes> classP <||| "class A {override fun a(): A; fun b(a: A):C;}"
-class A{@override A a(); C b(A a);}
-*Classes> classP <||| "class A {override fun a(): A; private fun b(a: A):C;}"
-class A{@override A a();private C b(A a);}
-*Classes> classP <||| "class A {override fun a(): A; private fun main(a: A):C;}"
-class A{@override A a();private C main(A a);}
-*Classes> classP <||| "class A {override fun a(): A; private fun main(a: Array<String>):C;}"
-class A{@override A a();private C main(List<String> a);}
-```
 
 # Why Haskell
 
