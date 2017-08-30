@@ -4,6 +4,11 @@
 
 This is a transpiler which consumes [Kotlin](https://kotlinlang.org) codes and convert them into [Dart](https://www.dartlang.org/).
 
+I made some CodeWars Katas inspired from this repo:
+
+[![](https://img.shields.io/badge/CodeWars-Expression%20Transpiler-red.svg)](https://www.codewars.com/kata/597ccf7613d879c4cb00000f)
+[![](https://img.shields.io/badge/CodeWars-Type%20Transpiler-red.svg)](https://www.codewars.com/kata/59a6949d398b5d6aec000007)
+
 # Why Kt2Dart
 
 Because I want to **Make [Flutter](https://flutter.io) Great Again**.
